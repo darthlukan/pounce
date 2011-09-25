@@ -1,0 +1,22 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # #
+#README:                                          #
+#      Piddle-v0.01                               #
+#          Downloader written in Python           #
+#                                                 #
+#                                                 #
+#Author:                                          #
+#      Brian Tomlinson                            #
+#          darthlukan@gmail.com                   #
+#                                                 #
+# # # # # # # # # # # # # # # # # # # # # # # # # #
+
+Piddle is a small program in the vein of wget and aria2.
+I was unhappy with the usability of these two existing programs
+and was faced with needing to write something for my final project
+in my beginning programming class.  Thus Piddle was born.
+
+I don't expect a ton of people to want to use this, that's okay,
+I'm writing it for me :)
+
+Simply run the program and follow the prompts.  More advanced features
+are in development as is this README file.
