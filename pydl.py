@@ -24,20 +24,10 @@ and specifying where to save it, are as simple as possible. Let's get to it!""")
 #Define our globals
 urlToGet = raw_input('Please enter the download URL: ')
 fileName = raw_input('Enter the desired filename: ')
-saveFileWhere = raw_input('Where do you want this file to be saved?: ')
 
-# Define functions that will use our globals:
-# Problem in this function:
-#  File "/usr/lib/python2.7/urllib.py", line 91, in urlretrieve
-#     return _urlopener.retrieve(url, filename, reporthook, data)
-#   File "/usr/lib/python2.7/urllib.py", line 276, in retrieve
-#     reporthook(blocknum, bs, size)
-# TypeError: 'str' object is not callable
-#
-# TODO, use urllib properly
-#
+# The function that actually gets stuff
 def getFile():  # Grab the file
-    urllib.urlretrieve(urlToGet, fileName, saveFileWhere)
+    urllib.urlretrieve(urlToGet, fileName)
 
 # Call our main function
 getFile()
