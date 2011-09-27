@@ -26,6 +26,7 @@ urlToGet = raw_input('Please enter the download URL: ')
 fileName = raw_input('Enter the desired filename: ')
 
 # The function that actually gets stuff
+# IT WORKS!!!
 def getFile():  # Grab the file
     urllib.urlretrieve(urlToGet, fileName)
 
