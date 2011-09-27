@@ -22,7 +22,24 @@ print("""Hello! I am going to ensure that downloading your file, renaming it,
 and specifying where to save it, are as simple as possible. Let's get to it!""")
 
 #Define our globals
+urlToGet = raw_input('Please enter the download URL: ')
+fileName = raw_input('Enter the desired filename: ')
+saveFileWhere = raw_input('Where do you want this file to be saved?: ')
 
-urlToGet = raw_input()
+# Define functions that will use our globals:
+# Problem in this function:
+#  File "/usr/lib/python2.7/urllib.py", line 91, in urlretrieve
+#     return _urlopener.retrieve(url, filename, reporthook, data)
+#   File "/usr/lib/python2.7/urllib.py", line 276, in retrieve
+#     reporthook(blocknum, bs, size)
+# TypeError: 'str' object is not callable
+#
+# TODO, use urllib properly
+#
+def getFile():  # Grab the file
+    urllib.urlretrieve(urlToGet, fileName, saveFileWhere)
 
-# Read more stuff and put something elegent here...
+# Call our main function
+getFile()
+
+
