@@ -19,7 +19,7 @@ from progressbar import ProgressBar
 
 #Introduce ourselves
 print("""Hello! I am going to ensure that downloading your file, renaming it,
-and specifying where to save it, are as simple as possible.  Let\'s get to it!""")
+and specifying where to save it, are as simple as possible. Let's get to it!""")
 
 #Define our globals
 
