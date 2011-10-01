@@ -33,15 +33,18 @@ print('Be warned! File Looping has not yet been implemented and will cause an ex
 
 # The function that actually gets stuff
 # IT WORKS!!!
-def getDownload():  # Grab the file
+def getStandardDownload():  # Grab the file
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
 
 #Define initial globals,
 specialDownload = raw_input('Do you need to import a file with links?(y/n): ')
 if specialDownload == 'n':
     urlToGetFile = raw_input('Please enter the download URL: ')
-    fileNameToSave = raw_input('Enter the desired filename: ')
-    getDownload()
+    # raw_input is smarter than me, it allows for entering absolute paths to
+    # desired filenames.  Go figure, the computer taught me something :)
+    fileNameToSave = raw_input("""Enter the desired download location and filename
+    (/home/username/downloads/filename.ext): """)
+    getStandardDownload() # Main download function, no file loops...yet.
 elif specialDownload == 'y':
     print('This feature has not yet been implemented! Please re-run the program')
     exit("Feature 'file looping' not yet implemented.")
@@ -50,6 +53,6 @@ else:
     exit("User input invalid or unreadable.")
 
 # Call our main function
-getDownload()
+# getStandardDownload()
 
 
