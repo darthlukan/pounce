@@ -11,26 +11,45 @@
 # Note: This software should be considered experimental!            #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+# Explanation of import list:
+# os and sys are needed to make sure that files and system level stuff
+# are handled properly.  urllib(2) for communications (we are downloading)
+# fileinput handles looping over links in a file (txt for now, csv later)
+# progressbar adds some bling for the user to look at while we work.
+
 import os
 import sys
 import urllib
 import urllib2
+import fileinput
 from progressbar import ProgressBar
 
 #Introduce ourselves
 print("""Hello! I am going to ensure that downloading your file, renaming it,
 and specifying where to save it, are as simple as possible. Let's get to it!""")
 
-#Define our globals
-urlToGet = raw_input('Please enter the download URL: ')
-fileName = raw_input('Enter the desired filename: ')
+# Warn the user about non-existent feature
+print('Be warned! File Looping has not yet been implemented and will cause an exit.')
 
 # The function that actually gets stuff
 # IT WORKS!!!
-def getFile():  # Grab the file
-    urllib.urlretrieve(urlToGet, fileName)
+def getDownload():  # Grab the file
+    urllib.urlretrieve(urlToGetFile, fileNameToSave)
+
+#Define initial globals,
+specialDownload = raw_input('Do you need to import a file with links?(y/n): ')
+if specialDownload == 'n':
+    urlToGetFile = raw_input('Please enter the download URL: ')
+    fileNameToSave = raw_input('Enter the desired filename: ')
+    getDownload()
+elif specialDownload == 'y':
+    print('This feature has not yet been implemented! Please re-run the program')
+    exit("Feature 'file looping' not yet implemented.")
+else:
+    print('There was a problem with your response, please re-run the program')
+    exit("User input invalid or unreadable.")
 
 # Call our main function
-getFile()
+getDownload()
 
 
