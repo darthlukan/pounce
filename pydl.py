@@ -1,7 +1,9 @@
 #!/usr/bin/env python2
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Filename: pydl.py                                                 #
-# Author: Brian Tomlinson <darthlukan@gmail.com>                     #
+# Authors: Brian Tomlinson <darthlukan@gmail.com>                   #
+#          Manuel Debaux <debaux.manual@gmail.com>                  #
+#          Brian Turner <archkaine@gmail.com>                       #
 # URL: git@github.com:darthlukan/piddle.git                         #
 # Description: A simple CLI download manager written in Python.     #
 # Warning: If you received this program from any source other than  #
