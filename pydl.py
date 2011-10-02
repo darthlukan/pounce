@@ -37,7 +37,9 @@ print('Downloading large groups of files could lead to RAM abuse.')
 # The function that actually gets stuff
 def getDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
-
+# This looks redundant now, but just wait... :)
+def getSpecialDownload(urlToGetFile, fileNameToSave):
+    urllib.urlretrieve(urlToGetFile, fileNameToSave)
     # Placeholder for progressbar:
     #widgets = ['Overall Progress: ', Percentage(), ' ',
     #               Bar(marker='#',left='[',right=']'),
@@ -77,7 +79,7 @@ def fileLoopCheck():
         for line in fi:
             urlToGetFile=line[:-1]
             fileNameToSave=baseDir+urlToGetFile[urlToGetFile.rfind('/')+1:]
-            getDownload(urlToGetFile, fileNameToSave)
+            getSpecialDownload(urlToGetFile, fileNameToSave)
             cl+=1
             pbar.update(cl)
         pbar.finish()
