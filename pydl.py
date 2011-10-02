@@ -36,7 +36,18 @@ print('Be warned! File Looping has not yet been implemented and will cause an ex
 def getStandardDownload():  # Grab the file
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
 
-#Define initial globals,
+def getSpecialDownload():   # Import the file, and loop links
+    fileinput.input(fileInput)
+    if fileInput.status() == 0:
+        urllib.urlretrieve(fileInput, folderNameToSave) #placeholder... for now
+    elif fileInput.status() == '':
+        print('Please re-run the program')
+        exit(0)
+    else:
+        print('There was a problem, throw the holy hand grenade!')
+        exit('The holy hand grenade pwnd you just now.')
+
+#Define initial globals
 specialDownload = raw_input('Do you need to import a file with links?(y/n): ')
 if specialDownload == 'n':
     urlToGetFile = raw_input('Please enter the download URL: ')
@@ -48,11 +59,13 @@ if specialDownload == 'n':
 elif specialDownload == 'y':
     print('This feature has not yet been implemented! Please re-run the program')
     exit("Feature 'file looping' not yet implemented.")
+    #fileInput =
+    #folderNameToSave =
+    #getSpecialDownload()
 else:
     print('There was a problem with your response, please re-run the program')
     exit("User input invalid or unreadable.")
 
-# Call our main function
-# getStandardDownload()
+
 
 
