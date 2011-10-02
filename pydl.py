@@ -55,7 +55,7 @@ def fileLoopCheck():
         fileNameUrls = raw_input('Enter the filename (with path) that contains URLs: ')
         baseDir = raw_input('Enter the directory where to download files: ')
         # Define how to handle pathing, default to preceding '/'
-        if not baseDir.endswith("/"):
+        if not baseDir.endswith("/") and baseDir != '':
             baseDir+="/"
         # Grab the file and iterate over each line, this is not yet smart enough
         # to discern between an actual url and erroneous text, so don't have anything
@@ -76,7 +76,7 @@ def fileLoopCheck():
         # Done with the prep work, time to do what the user wants
         for line in fi:
             urlToGetFile=line[:-1]
-            fileNameToSave=urlToGetFile[urlToGetFile.rfind('/')+1:]
+            fileNameToSave=baseDir+urlToGetFile[urlToGetFile.rfind('/')+1:]
             getDownload(urlToGetFile, fileNameToSave)
             cl+=1
             pbar.update(cl)
