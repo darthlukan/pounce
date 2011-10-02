@@ -33,50 +33,57 @@ and specifying where to save it, are as simple as possible. Let's get to it!""")
 
 # Warn the user about non-existent feature
 print('Be warned! File Looping has been implemented but is experimental.')
-
+print('Downloading large groups of files could lead to RAM abuse.')
 # The function that actually gets stuff
-def getDownload():  # Grab the file
+def getDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
 
-#Define initial globals,
-specialDownload = raw_input('Do you need to import a file with links?(y/n): ')
-if specialDownload == 'n':
-    urlToGetFile = raw_input('Please enter the download URL: ')
-    fileNameToSave = raw_input('Enter the desired filename: ')
-    getDownload()
-elif specialDownload == 'y':
-    fileNameUrls = raw_input('Enter the filename (with path) that contains URLs: ')
-    baseDir = raw_input('Enter the directory where to download files: ')
-    # Define how to handle pathing, default to preceding '/'
-    if not baseDir.endswith("/"):
-        baseDir+="/"
-    # Grab the file and iterate over each line, this is not yet smart enough
-    # to discern between an actual url and erroneous text, so don't have anything
-    # other than links in your input file!
-    fi = fileinput.input(fileNameUrls)
-    nl=0 #numbers of line
-    for line in fi:
-        nl+=1 # iterate over the next line
-    # Re-read, this will be cleaned up later
-    fi = fileinput.input(fileNameUrls) # reset the fileinput : can't reuse it
-    cl=0 # currentline
-    # Progressbar() stuff, wheee!
-    widgets = ['Overall Progress: ', Percentage(), ' ',
-                   Bar(marker='#',left='[',right=']'),
-                   ' ', ETA(), ' ', FileTransferSpeed()]
-    pbar = ProgressBar(widgets=widgets, maxval=nl)
-    pbar.start()
-    # Done with the prep work, time to do what the user wants
-    for line in fi:
-        urlToGetFile=line[:-1]
-        fileNameToSave=urlToGetFile[urlToGetFile.rfind('/')+1:]
+    # Placeholder for progressbar:
+    #widgets = ['Overall Progress: ', Percentage(), ' ',
+    #               Bar(marker='#',left='[',right=']'),
+    #               ' ', ETA(), ' ', FileTransferSpeed()]
+    #pbar = ProgressBar(widgets=widgets, maxval=nl)
+    #pbar.start()
+
+def fileLoopCheck():
+    specialDownload = raw_input('Do you need to import a file with links?(y/n): ')
+    if specialDownload == 'n':
+        urlToGetFile = raw_input('Please enter the download URL: ')
+        fileNameToSave = raw_input('Enter the desired filename: ')
         getDownload()
-        cl+=1
-        pbar.update(cl)
-    pbar.finish()
-    exit('File Loop complete, goodbye!') #And I'm spent!
-else:
-    print('There was a problem with your response, please re-run the program')
-    exit("User input invalid or unreadable.")
-
-
+    elif specialDownload == 'y':
+        fileNameUrls = raw_input('Enter the filename (with path) that contains URLs: ')
+        baseDir = raw_input('Enter the directory where to download files: ')
+        # Define how to handle pathing, default to preceding '/'
+        if not baseDir.endswith("/"):
+            baseDir+="/"
+        # Grab the file and iterate over each line, this is not yet smart enough
+        # to discern between an actual url and erroneous text, so don't have anything
+        # other than links in your input file!
+        fi = fileinput.input(fileNameUrls)
+        nl=0 #numbers of line
+        for line in fi:
+            nl+=1 # iterate over the next line
+        # Re-read, this will be cleaned up later
+        fi = fileinput.input(fileNameUrls) # reset the fileinput : can't reuse it
+        cl=0 # currentline
+        # Progressbar() stuff, wheee!
+        widgets = ['Overall Progress: ', Percentage(), ' ',
+                       Bar(marker='>',left='[',right=']'),
+                       ' ', ETA(), ' ', FileTransferSpeed()]
+        pbar = ProgressBar(widgets=widgets, maxval=nl)
+        pbar.start()
+        # Done with the prep work, time to do what the user wants
+        for line in fi:
+            urlToGetFile=line[:-1]
+            fileNameToSave=urlToGetFile[urlToGetFile.rfind('/')+1:]
+            getDownload(urlToGetFile, fileNameToSave)
+            cl+=1
+            pbar.update(cl)
+        pbar.finish()
+        print('All done!')
+    else:
+        print('There was an error in your response, let\'s try again...')
+        fileLoopCheck()
+# Call start function
+fileLoopCheck()
