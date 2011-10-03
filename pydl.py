@@ -32,6 +32,11 @@ from decimal import *
 # that are going to actually do work.  TODO: This still feels very "scripty" It
 # needs to be cleaned up.
 
+# A function to provide a clean exit from anywhere in the program
+# Thanks to Brian Turner for this.
+def cleanExit():
+    exit(0)
+
 # The function that actually gets stuff
 def getRegDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
