@@ -33,22 +33,22 @@ from decimal import *
 # needs to be cleaned up.
 
 # The function that actually gets stuff
-def getDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
+def getRegDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
 
 # This looks redundant now, but just wait... :)
 def getSpecialDownload(urlToGetFile, baseDir):
     urllib.urlretrieve(urlToGetFile, baseDir)
 
-def getOverallLength(fileNameUrls):
+def getOverallLength(fileNameUrls, baseDir):
     fi = fileinput.input(fileNameUrls)
     overallLength = 0
     for line in fi:
         data = str(urllib2.urlopen(line).info())
         data = data[data.find('Content-Length'):]
         data = data[16:data.find('\r')]
-        overallLength += Decimal(data) # ValueError: Invalid literal for int():#####
-    return overallLength
+        overallLength += Decimal(data) 
+    specialDownloadWork(fileNameUrls, baseDir, overallLength)
 
 def moreToDoQuery():
     moreDownloads = raw_input('Do you want to download more files?(y/n): ')
@@ -70,7 +70,7 @@ def moreToDoQuery():
         print("Let's try that again...")
         moreToDoQuery()    
 
-def specialDownloadWork(fileNameUrls, baseDir):
+def specialDownloadWork(fileNameUrls, baseDir, overallLength):
     if not baseDir.endswith('/') and baseDir != '':
         baseDir += '/'
     fi = fileinput.input(fileNameUrls)
@@ -82,13 +82,12 @@ def specialDownloadWork(fileNameUrls, baseDir):
     widgets = ['Overall Progress: ', Percentage(), ' ',
                 Bar(marker = '>', left = '[', right = ']'),
                 ' ', ETA(), ' ', FileTransferSpeed()]
-    getOverallLength(fileNameUrls)
     pbar = ProgressBar(widgets = widgets, maxval = overallLength)
     pbar.start()
     for line in fi:
         urlToGetFile = line[:-1]
         fileNameToSave = baseDir + urlToGetFile[urlToGetFile.rfind('/')+1:]
-        getSpecialDownload(urlToGetFile, baseDir)
+        getSpecialDownload(urlToGetFile, fileNameToSave)
         cl += 1
         pbar.update(overallLength / nl * cl)
     pbar.finish()
@@ -99,12 +98,12 @@ def specialDownloadWork(fileNameUrls, baseDir):
 def specialDownloadInfo():
     fileNameUrls = raw_input('Enter the filename (with path) that contains URLs: ')
     baseDir = raw_input('Enter the directory path where you want the files saved: ')
-    specialDownloadWork(fileNameUrls, baseDir)
+    getOverallLength(fileNameUrls, baseDir)
 
 def regDownloadInfo():
     urlToGetFile = raw_input('Please enter the download URL: ')
     fileNameToSave = raw_input('Enter the desired path and filename: ')
-    getDownloadurlToGetFile, fileNameToSave()
+    getRegDownload(urlToGetFile, fileNameToSave)
 
 def fileLoopCheck():
     specialDownload = raw_input('Do you need to import a file with links?(y/n): ')
