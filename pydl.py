@@ -26,7 +26,7 @@ import urllib
 import urllib2
 import fileinput
 from progressbar import *
-
+from decimal import *
 
 # Now we are going to define the actual program API, these are the functions
 # that are going to actually do work.  TODO: This still feels very "scripty" It
@@ -44,10 +44,10 @@ def getOverallLength(fileNameUrls):
     fi = fileinput.input(fileNameUrls)
     overallLength = 0
     for line in fi:
-        data = str(urllib2.urlopen(line[:-1]).info())
+        data = str(urllib2.urlopen(line).info())
         data = data[data.find('Content-Length'):]
-        data = data[16:data.find('/r')]
-        overallLength += float(data)
+        data = data[16:data.find('\r')]
+        overallLength += Decimal(data) # ValueError: Invalid literal for int():#####
     return overallLength
 
 def moreToDoQuery():
