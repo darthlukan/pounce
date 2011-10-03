@@ -47,7 +47,7 @@ def getOverallLength(fileNameUrls, baseDir):
         data = str(urllib2.urlopen(line).info())
         data = data[data.find('Content-Length'):]
         data = data[16:data.find('\r')]
-        overallLength += Decimal(data) 
+        overallLength += int(data) 
     specialDownloadWork(fileNameUrls, baseDir, overallLength)
 
 def moreToDoQuery():
