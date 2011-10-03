@@ -46,11 +46,9 @@ def getSpecialDownload(urlToGetFile, fileNameToSave):
 def moreToDoQuery():
     #stuff TODO (Add in context sensitive continuation queries)
 
-# This function is going to do all of the work for us so that we can modularize
-# and lead into some backgrounding.
 def specialDownloadWork():
-    if not baseDir.endswith("/") and baseDir != '':
-        baseDir += "/"
+    if not baseDir.endswith('/') and baseDir != '':
+        baseDir += '/'
     fi = fileinput.input(fileNameUrls)
     nl = 0
     for line in fi:
@@ -88,12 +86,12 @@ def regDownloadInfo():
 # Loop over the file and grab some useful values for the progressbar output.
 def getOverallLength(fileNameUrls):
     fi = fileinput.input(fileNameUrls)
-    overallLength=0
+    overallLength = 0
     for line in fi:
-        data=str(urllib2.urlopen(line[:-1]).info())
-        data=data[data.find("Content-Length"):]
-        data=data[16:data.find("\r")]
-        overallLength+=int(data)
+        data = str(urllib2.urlopen(line[:-1]).info())
+        data = data[data.find('Content-Length'):]
+        data = data[16:data.find('\r')]
+        overallLength += int(data)
     return overallLength
 
 def fileLoopCheck():
@@ -103,7 +101,7 @@ def fileLoopCheck():
     elif specialDownload == 'y':
         specialDownloadInfo()
     else:
-        print('There was an error in your response, let\'s try again...')
+        print("There was an error in your response, let's try again...")
         fileLoopCheck()
 # Call start function
 fileLoopCheck()
