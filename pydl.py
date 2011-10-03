@@ -28,8 +28,8 @@ import fileinput
 from progressbar import *
 
 #Introduce ourselves
-print("""Hello! I am going to ensure that downloading your file, renaming it,
-and specifying where to save it, are as simple as possible. Let's get to it!""")
+print("""Hello! I am going to ensure that downloading your files, renaming them,
+and specifying where to save them, are as simple as possible. Let's get to it!""")
 
 # Warn the user about non-existent feature
 print('Be warned! File Looping has been implemented but is experimental.')
@@ -65,11 +65,11 @@ def fileLoopCheck():
     specialDownload = raw_input('Do you need to import a file with links?(y/n): ')
     if specialDownload == 'n':
         urlToGetFile = raw_input('Please enter the download URL: ')
-        fileNameToSave = raw_input('Enter the desired filename: ')
+        fileNameToSave = raw_input('Enter the desired path and filename: ')
         getDownload()
     elif specialDownload == 'y':
         fileNameUrls = raw_input('Enter the filename (with path) that contains URLs: ')
-        baseDir = raw_input('Enter the directory where to download files: ')
+        baseDir = raw_input('Enter the directory where you want the files saved: ')
         # Define how to handle pathing, default to preceding '/'
         if not baseDir.endswith("/") and baseDir != '':
             baseDir+="/"
