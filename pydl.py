@@ -47,6 +47,20 @@ def getSpecialDownload(urlToGetFile, fileNameToSave):
     #pbar = ProgressBar(widgets=widgets, maxval=nl)
     #pbar.start()
 
+# The function that sums the lengths of all files to download
+# This function avoid to download all files to get lengths but it's take quite time to get few files length
+def getOverallLength(fileNameUrls):
+    fi = fileinput.input(fileNameUrls)
+    overallLength=0
+
+    for line in fi:
+        data=str(urllib2.urlopen(line[:-1]).info())
+        data=data[data.find("Content-Length"):]
+        data=data[16:data.find("\r")]
+        overallLength+=int(data)
+
+    return overallLength
+
 def fileLoopCheck():
     specialDownload = raw_input('Do you need to import a file with links?(y/n): ')
     if specialDownload == 'n':
@@ -73,7 +87,7 @@ def fileLoopCheck():
         widgets = ['Overall Progress: ', Percentage(), ' ',
                        Bar(marker='>',left='[',right=']'),
                        ' ', ETA(), ' ', FileTransferSpeed()]
-        pbar = ProgressBar(widgets=widgets, maxval=nl)
+        pbar = ProgressBar(widgets=widgets, maxval=overallLength)
         pbar.start()
         # Done with the prep work, time to do what the user wants
         for line in fi:
@@ -81,7 +95,7 @@ def fileLoopCheck():
             fileNameToSave=baseDir+urlToGetFile[urlToGetFile.rfind('/')+1:]
             getSpecialDownload(urlToGetFile, fileNameToSave)
             cl+=1
-            pbar.update(cl)
+            pbar.update(overallLength/nl*cl)
         pbar.finish()
         print('All done!')
     else:
