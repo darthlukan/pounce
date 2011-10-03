@@ -27,13 +27,10 @@ import urllib2
 import fileinput
 from progressbar import *
 
-#Introduce ourselves
-print("""Hello! I am going to ensure that downloading your files, renaming them,
-and specifying where to save them, are as simple as possible. Let's get to it!""")
 
-# Warn the user about experimental features
-print('Be warned! File Looping has been implemented but is experimental.')
-print('Downloading large groups of files could lead to RAM abuse.')
+# Now we are going to define the actual program API, these are the functions
+# that are going to actually do work.  TODO: This still feels very "scripty" It
+# needs to be cleaned up.
 
 # The function that actually gets stuff
 def getDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
@@ -44,7 +41,25 @@ def getSpecialDownload(urlToGetFile, fileNameToSave):
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
 
 def moreToDoQuery():
-    #stuff TODO (Add in context sensitive continuation queries)
+    moreDownloads = raw_input('Do you want to download more files?(y/n): ')
+    if moreDownloads == 'n':
+        print('Until next time!')
+        exit(0)
+    elif moreDownloads == 'y':
+        print("""Do you need to loop over another file? Or do you only need to
+        download from a single link?""")
+        moreDownloadType = raw_input("File Loop = 'loop', Single Link =
+        'single': ")
+        if moreDownloadType == 'loop':
+            specialDownloadInfo()
+        elif moreDownloadType == 'single':
+            regDownloadInfo()
+        else:
+            print('Invalid response recorded, please try again.')
+            moreToDoQuery()
+    else:
+        print("Let's try that again...")
+        moreToDoQuery()    
 
 def specialDownloadWork():
     if not baseDir.endswith('/') and baseDir != '':
@@ -103,5 +118,13 @@ def fileLoopCheck():
     else:
         print("There was an error in your response, let's try again...")
         fileLoopCheck()
-# Call start function
-fileLoopCheck()
+
+def main():
+    print("""Hello! I am going to ensure that downloading your files, renaming them,
+             and specifying where to save them, are as simple as possible. Let's get to it!""")
+    print('Be warned! File Looping has been implemented but is experimental.')
+    print('Downloading large groups of files could lead to RAM abuse.')
+    fileLoopCheck()
+
+# Call main function
+main()
