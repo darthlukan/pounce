@@ -37,8 +37,8 @@ def getDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
 
 # This looks redundant now, but just wait... :)
-def getSpecialDownload(urlToGetFile, fileNameToSave):
-    urllib.urlretrieve(urlToGetFile, fileNameToSave)
+def getSpecialDownload(urlToGetFile, baseDir):
+    urllib.urlretrieve(urlToGetFile, baseDir)
 
 def moreToDoQuery():
     moreDownloads = raw_input('Do you want to download more files?(y/n): ')
@@ -48,8 +48,8 @@ def moreToDoQuery():
     elif moreDownloads == 'y':
         print("""Do you need to loop over another file? Or do you only need to
         download from a single link?""")
-        moreDownloadType = raw_input("File Loop = 'loop', Single Link =
-        'single': ")
+        moreDownloadType = raw_input("""File Loop = 'loop', Single Link =
+        'single': """)
         if moreDownloadType == 'loop':
             specialDownloadInfo()
         elif moreDownloadType == 'single':
@@ -87,11 +87,11 @@ def specialDownloadWork():
 
 #This function is going to handle our special download info for file looping.
 def specialDownloadInfo():
-    urlToGetFile = raw_input('Enter the filename (with path) that
-    contains URLs: ')
-    baseDir = raw_input('Enter the directory path where you want the
-    files saved: ')
-    getSpecialDownload(urlToGetFile, fileNameToSave)
+    urlToGetFile = raw_input("""Enter the filename (with path) that
+    contains URLs: """)
+    baseDir = raw_input("""Enter the directory path where you want the
+    files saved: """)
+    getSpecialDownload(urlToGetFile, baseDir)
 
 def regDownloadInfo():
     urlToGetFile = raw_input('Please enter the download URL: ')
