@@ -96,7 +96,7 @@ def specialDownloadInfo():
 def regDownloadInfo():
     urlToGetFile = raw_input('Please enter the download URL: ')
     fileNameToSave = raw_input('Enter the desired path and filename: ')
-    getDownload()
+    getDownloadurlToGetFile, fileNameToSave()
 
 # Loop over the file and grab some useful values for the progressbar output.
 def getOverallLength(fileNameUrls):
