@@ -32,9 +32,10 @@ from decimal import *
 # that are going to actually do work.  TODO: This still feels very "scripty" It
 # needs to be cleaned up.
 
+
 # A function to provide a clean exit from anywhere in the program
-# Thanks to Brian Turner for this.
 def cleanExit():
+    print ("Exiting now!")
     exit(0)
 
 # The function that actually gets stuff
@@ -52,28 +53,32 @@ def getOverallLength(fileNameUrls, baseDir):
         data = str(urllib2.urlopen(line).info())
         data = data[data.find('Content-Length'):]
         data = data[16:data.find('\r')]
-        overallLength += int(data) 
+        overallLength += int(data)
     specialDownloadWork(fileNameUrls, baseDir, overallLength)
 
 def moreToDoQuery():
-    moreDownloads = raw_input('Do you want to download more files?(y/n): ')
-    if moreDownloads == 'n':
+    moreDownloads = raw_input('Do you want to download more files?(y/n/q): ')
+    if moreDownloads == 'n' or moreDownloads == 'N':
         print('Until next time!')
-        exit(0)
-    elif moreDownloads == 'y':
+        cleanExit()
+    elif moreDownloads == 'y' or moreDownloads == 'Y':
         print("""Do you need to loop over another file? Or do you only need to
         download from a single link?""")
-        moreDownloadType = raw_input("File Loop = 'loop', Single Link = 'single': ")
-        if moreDownloadType == 'loop':
+        moreDownloadType = raw_input("File Loop = 'loop', Single Link = 'single', or 'Q' to Quit: ")
+        if moreDownloadType == 'loop' or moreDownloadType == 'l':
             specialDownloadInfo()
-        elif moreDownloadType == 'single':
+        elif moreDownloadType == 'single' or moreDownloadType == 's':
             regDownloadInfo()
+        elif moreDownloadType == 'Q' or moreDownloadType == 'q':
+            cleanExit()
         else:
             print('Invalid response recorded, please try again.')
             moreToDoQuery()
+    elif moreDownloads == 'q' or moreDownloads == 'Q':
+        cleanExit()
     else:
         print("Let's try that again...")
-        moreToDoQuery()    
+        moreToDoQuery()
 
 def specialDownloadWork(fileNameUrls, baseDir, overallLength):
     if not baseDir.endswith('/') and baseDir != '':
@@ -101,21 +106,31 @@ def specialDownloadWork(fileNameUrls, baseDir, overallLength):
 
 #This function is going to handle our special download info for file looping.
 def specialDownloadInfo():
-    fileNameUrls = raw_input('Enter the filename (with path) that contains URLs: ')
-    baseDir = raw_input('Enter the directory path where you want the files saved: ')
+    fileNameUrls = raw_input('Enter the filename (with path) that contains URLs (Q to quit): ')
+    if fileNameUrls == 'q' or fileNameUrls == 'Q':
+        cleanExit()
+    baseDir = raw_input('Enter the directory path where you want the files saved (Q to quit): ')
+    if baseDir == 'q' or baseDir == 'Q':
+        cleanExit()
     getOverallLength(fileNameUrls, baseDir)
 
 def regDownloadInfo():
-    urlToGetFile = raw_input('Please enter the download URL: ')
-    fileNameToSave = raw_input('Enter the desired path and filename: ')
+    urlToGetFile = raw_input('Please enter the download URL (Q to quit): ')
+    if urlToGetFile == 'q' or urlToGetFile == 'Q':
+        cleanExit()
+    fileNameToSave = raw_input('Enter the desired path and filename (Q to quit): ')
+    if fileNameToSave == 'q' or fileNameToSave == 'Q':
+        cleanExit()
     getRegDownload(urlToGetFile, fileNameToSave)
 
 def fileLoopCheck():
-    specialDownload = raw_input('Do you need to import a file with links?(y/n): ')
-    if specialDownload == 'n':
+    specialDownload = raw_input('Do you need to import a file with links?(y/n/q): ')
+    if specialDownload == 'n' or specialDownload == 'N':
         regDownloadInfo()
-    elif specialDownload == 'y':
+    elif specialDownload == 'y' or specialDownload == 'Y':
         specialDownloadInfo()
+    elif specialDownload == 'q' or specialDownload == 'Q':
+        cleanExit()
     else:
         print("There was an error in your response, let's try again...")
         fileLoopCheck()
