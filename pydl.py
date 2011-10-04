@@ -58,7 +58,10 @@ def getOverallLength(fileNameUrls, baseDir):
 
 def moreToDoQuery():
     moreDownloads = raw_input('Do you want to download more files?(y/n/q): ')
-    if moreDownloads == 'n' or moreDownloads == 'N':
+    if moreDownloads == 'n'\
+    or moreDownloads == 'N'\
+    or moreDownloads == 'q'\
+    or moreDownloads == 'Q':
         print('Until next time!')
         cleanExit()
     elif moreDownloads == 'y' or moreDownloads == 'Y':
@@ -74,8 +77,6 @@ def moreToDoQuery():
         else:
             print('Invalid response recorded, please try again.')
             moreToDoQuery()
-    elif moreDownloads == 'q' or moreDownloads == 'Q':
-        cleanExit()
     else:
         print("Let's try that again...")
         moreToDoQuery()
