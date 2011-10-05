@@ -25,8 +25,9 @@ import sys
 import urllib
 import urllib2
 import fileinput
+import argparse
 from progressbar import *
-from decimal import *
+from threading import Thread
 
 # Now we are going to define the actual program API, these are the functions
 # that are going to actually do work.  TODO: This still feels very "scripty" It
