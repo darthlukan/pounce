@@ -39,7 +39,7 @@ def cleanExit():
     exit(0)
 
 # The function that actually gets stuff
-def getDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
+def getRegDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
     filelen=0
     data=str(urllib2.urlopen(urlToGetFile).info())
     data=data[data.find("Content-Length"):]
