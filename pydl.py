@@ -39,8 +39,21 @@ def cleanExit():
     exit(0)
 
 # The function that actually gets stuff
-def getRegDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
+def getDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
+    filelen=0
+    data=str(urllib2.urlopen(urlToGetFile).info())
+    data=data[data.find("Content-Length"):]
+    data=data[16:data.find("\r")]
+    filelen+=int(data)
+
+    # Placeholder for progressbar:
+    widgets = ['Download Progress: ', Percentage(), ' ',
+                   Bar(marker='#',left='[',right=']'),
+                   ' ', ETA(), ' ', FileTransferSpeed()]
+    pbar = ProgressBar(widgets=widgets, maxval=filelen)
+    pbar.start()
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
+    pbar.finish()
 
 # This looks redundant now, but just wait... :)
 def getSpecialDownload(urlToGetFile, baseDir):
