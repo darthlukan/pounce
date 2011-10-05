@@ -32,6 +32,26 @@ from decimal import *
 # that are going to actually do work.  TODO: This still feels very "scripty" It
 # needs to be cleaned up.
 
+# CLI argument parsing, TODO
+parser = argparse.ArgumentParser(description='pydl argument information.')
+parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles', help='Given the full path load each URL in the file. This will also take multiple file arguments.')
+parser.add_argument('-d', '--dir',   nargs=1, action= 'store', default=".", dest='outputDir', help='In a given directory check all files for URLs and download those.')
+parser.add_argument('-u', '--url', nargs='*', action='append', dest='cUrls', help='This will wget 1-N urls. Use space as the delimitter.')
+parser.add_argument('-o', '--output', nargs=1,  action='store', dest='outputDir', help='Move all downloaded files to this directory.')
+parser.add_argument('-v', '--version', action='version', version='%(prog)s 1.0', help ='Current version of pydl.py')
+
+args = parser.parse_args()
+if(args.cFiles):
+    for file in args.cFiles:
+        tx = Thread(target=getOverallLength(file,args.outputDir[0]))
+        print "thread start"
+        tx.start()
+    #getOverallLength(file,args.outputDir[0])
+if(args.cUrls):
+    for url in args.cUrls:
+    print 'this hasn\'t been configured yet.'
+else:
+    fileLoopCheck()
 
 # A function to provide a clean exit from anywhere in the program
 def cleanExit():
