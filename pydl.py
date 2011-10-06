@@ -33,24 +33,24 @@ from threading import Thread
 # that are going to actually do work.  TODO: This still feels very "scripty" It
 # needs to be cleaned up.
 
-# CLI argument parsing, TODO
+# CLI argument parsing, TODO: Shorten the lines?
 parser = argparse.ArgumentParser(description='pydl argument information.')
 parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles', help='Given the full path load each URL in the file. This will also take multiple file arguments.')
 parser.add_argument('-d', '--dir',   nargs=1, action= 'store', default=".", dest='outputDir', help='In a given directory check all files for URLs and download those.')
 parser.add_argument('-u', '--url', nargs='*', action='append', dest='cUrls', help='This will wget 1-N urls. Use space as the delimitter.')
 parser.add_argument('-o', '--output', nargs=1,  action='store', dest='outputDir', help='Move all downloaded files to this directory.')
-parser.add_argument('-v', '--version', action='version', version='%(prog)s 1.0', help ='Current version of pydl.py')
+parser.add_argument('-v', '--version', action='version', version='%(prog)s-0.01', help ='Current version of pydl.py')
 
 args = parser.parse_args()
 if(args.cFiles):
     for file in args.cFiles:
         tx = Thread(target=getOverallLength(file,args.outputDir[0]))
-        print "thread start"
+        print("thread start")
         tx.start()
-    #getOverallLength(file,args.outputDir[0])
+#getOverallLength(file,args.outputDir[0])
 if(args.cUrls):
     for url in args.cUrls:
-    print 'this hasn\'t been configured yet.'
+        print("this hasn't been configured yet.")
 else:
     fileLoopCheck()
 
@@ -75,6 +75,7 @@ def getRegDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
     pbar.start()
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
     pbar.finish()
+    moreToDoQuery()
 
 # This looks redundant now, but just wait... :)
 def getSpecialDownload(urlToGetFile, baseDir):
@@ -171,8 +172,8 @@ def fileLoopCheck():
         fileLoopCheck()
 
 def main():
-    print("""Hello! I am going to ensure that downloading your files, renaming them,
-             and specifying where to save them, are as simple as possible. Let's get to it!""")
+    print("Hello! I am going to ensure that downloading your files, renaming them, \
+    and specifying where to save them, are as simple as possible. Let's get to it!")
     print('Be warned! File Looping has been implemented but is experimental.')
     print('Downloading large groups of files could lead to RAM abuse.')
     fileLoopCheck()
