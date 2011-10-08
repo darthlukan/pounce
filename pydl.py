@@ -51,8 +51,9 @@ if(args.cFiles):
 if(args.cUrls):
     for url in args.cUrls:
         print("this hasn't been configured yet.")
-else:
-    fileLoopCheck()
+#TODO: move fileLoopCheck or move this into a seperate file completly
+#else:
+#    fileLoopCheck()
 
 # A function to provide a clean exit from anywhere in the program
 def cleanExit():
