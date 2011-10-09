@@ -145,7 +145,7 @@ def file_loop_check():
         print("There was an error in your response, let's try again...")
         file_loop_check()
 
-# This is the funtion that starts it all
+# This is the function that starts it all
 def main():
     print(""""Hello! I am going to ensure that downloading your files, renaming them,\
     and specifying where to save them, are as simple as possible. Let's get to it!""")
