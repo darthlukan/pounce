@@ -148,10 +148,11 @@ def file_loop_check():
 
 # This is the function that starts it all
 def main():
-    print(""""Hello! I am going to ensure that downloading your files, renaming them,\
-    and specifying where to save them, are as simple as possible. Let's get to it!""")
-    print('Be warned! File Looping has been implemented but is experimental.')
-    print('Downloading large groups of files could lead to RAM abuse.')
+    print("""Hello! I am going to ensure that downloading your files, renaming them,
+and specifying where to save them, are as simple as possible. Let's get to it!""")
+    print("Be warned! File Looping has been implemented but is experimental.")
+    print("Downloading large groups of files could lead to RAM abuse.")
+    print("The progress bar is still being worked on, don't be afraid if no output.")
     # Argument parsing, wheeee!!!
     parser = argparse.ArgumentParser(description='pydl argument information.')
     parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles', help='Given the full path load each URL in the file. This will also take multiple file arguments.')
