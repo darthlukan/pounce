@@ -27,6 +27,19 @@ from threading import Thread # Because multi-threading is bad a$$! :)
 # that are going to actually do work.  TODO: A class should go in here somwhere
 # to keep things clean and to properly use multi-threading.
 
+def query_response(question):
+    prompt = " [y/n/q] "
+    response = raw_input(question+prompt).lower()
+    if(response == 'q'):
+      clean_exit()
+    elif(response == 'y'
+         or response == 'n'):
+      return response;
+    else:
+      print('Invalid response recorded, please try again.\n')
+      query_response(question)
+      
+    
 # The function that actually gets stuff
 def get_reg_download(urlToGetFile, fileNameToSave):  # Grab the file(s)
     filelen=0
@@ -64,29 +77,15 @@ def get_overall_length(fileNameUrls, baseDir):
 
 # Oh, you thought you were done? Nope, I'm gonna ask you more questions :)
 def more_to_do_query():
-    moreDownloads = raw_input('Do you want to download more files?(y/n/q): ')
-    if moreDownloads == 'n'\
-    or moreDownloads == 'N'\
-    or moreDownloads == 'q'\
-    or moreDownloads == 'Q':
-        print('Until next time!')
-        clean_exit()
-    elif moreDownloads == 'y' or moreDownloads == 'Y':
-        print("""Do you need to loop over another file? Or do you only need to
-        download from a single link?""")
-        moreDownloadType = raw_input("File Loop = 'loop', Single Link = 'single', or 'Q' to Quit: ")
-        if moreDownloadType == 'loop' or moreDownloadType == 'l':
-            special_download_info()
-        elif moreDownloadType == 'single' or moreDownloadType == 's':
-            reg_download_info()
-        elif moreDownloadType == 'Q' or moreDownloadType == 'q':
-            clean_exit()
+    moreDownloads = query_response('Do you want to download more files?')
+    if moreDownloads == 'n':
+        moreDownloads = query_response('Do you want to download from a single link?')
+        if(moreDownload == 'y'):
+          reg_download_info()
         else:
-            print('Invalid response recorded, please try again.')
-            more_to_do_query()
-    else:
-        print("Let's try that again...")
-        more_to_do_query()
+          print('need to handle something here********')
+    elif moreDownloads == 'y':
+            special_download_info()
 
 # Do some work and give us a progressbar
 def special_download_work(fileNameUrls, baseDir, overallLength):
@@ -116,35 +115,30 @@ def special_download_work(fileNameUrls, baseDir, overallLength):
 #This function is going to handle our special download info for file looping.
 def special_download_info():
     fileNameUrls = raw_input('Enter the filename (with path) that contains URLs (Q to quit): ')
-    if fileNameUrls == 'q' or fileNameUrls == 'Q':
+    if fileNameUrls.upper() == 'Q':
         clean_exit()
     baseDir = raw_input('Enter the directory path where you want the files saved (Q to quit): ')
-    if baseDir == 'q' or baseDir == 'Q':
+    if baseDir.upper() == 'Q':
         clean_exit()
     get_overall_length(fileNameUrls, baseDir)
 
 # Regular download setup
 def reg_download_info():
     urlToGetFile = raw_input('Please enter the download URL (Q to quit): ')
-    if urlToGetFile == 'q' or urlToGetFile == 'Q':
+    if urlToGetFile.upper() == 'Q':
         clean_exit()
     fileNameToSave = raw_input('Enter the desired path and filename (Q to quit): ')
-    if fileNameToSave == 'q' or fileNameToSave == 'Q':
+    if fileNameToSave.upper() == 'Q':
         clean_exit()
     get_reg_download(urlToGetFile, fileNameToSave)
 
 # Initial tests to decide where to go
 def file_loop_check():
-    specialDownload = raw_input('Do you need to import a file with links?(y/n/q): ')
-    if specialDownload == 'n' or specialDownload == 'N':
+    specialDownload = query_response('Do you need to import a file with links?')
+    if specialDownload == 'n':
         reg_download_info()
-    elif specialDownload == 'y' or specialDownload == 'Y':
-        special_download_info()
-    elif specialDownload == 'q' or specialDownload == 'Q':
-        clean_exit()
     else:
-        print("There was an error in your response, let's try again...")
-        file_loop_check()
+        special_download_info()
 
 # This is the function that starts it all
 def main():
@@ -155,11 +149,16 @@ and specifying where to save them, are as simple as possible. Let's get to it!""
     print("The progress bar is still being worked on, don't be afraid if no output.")
     # Argument parsing, wheeee!!!
     parser = argparse.ArgumentParser(description='pydl argument information.')
-    parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles', help='Given the full path load each URL in the file. This will also take multiple file arguments.')
-    parser.add_argument('-d', '--dir',   nargs=1, action= 'store', default=".", dest='outputDir', help='In a given directory check all files for URLs and download those.')
-    parser.add_argument('-u', '--url', nargs='*', action='append', dest='cUrls', help='This will wget 1-N urls. Use space as the delimitter.')
-    parser.add_argument('-o', '--output', nargs=1,  action='store', dest='outputDir', help='Move all downloaded files to this directory.')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s-0.01', help ='Current version of pydl.py')
+    parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles', 
+           help='Given the full path load each URL in the file. This will also take multiple file arguments.')
+    parser.add_argument('-d', '--dir',   nargs=1, action= 'store', default=".", dest='outputDir', 
+           help='In a given directory check all files for URLs and download those.')
+    parser.add_argument('-u', '--url', nargs='*', action='append', dest='cUrls', 
+           help='This will wget 1-N urls. Use space as the delimitter.')
+    parser.add_argument('-o', '--output', nargs=1,  action='store', dest='outputDir', 
+           help='Move all downloaded files to this directory.')
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s-0.01', 
+           help ='Current version of pydl.py')
     # Do stuff
     args = parser.parse_args()
     if(args.cFiles):
@@ -168,23 +167,17 @@ and specifying where to save them, are as simple as possible. Let's get to it!""
             print("thread start")
             tx.start()
         #getOverallLength(file,args.outputDir[0])
-        if(args.cUrls):
+    elif(args.cUrls):
             for url in args.cUrls:
                 print("this hasn't been configured yet.")
-        else:
-            file_loop_check()
     else:
         file_loop_check()
 
 #A function to provide a clean exit from anywhere in the program
 def clean_exit():
-    exitCheck = raw_input("Would you like to exit the program?(y/n)")
-    if exitCheck != 'n' and exitCheck != 'N':
-        print ("Exiting now!")
+        print ("Thank you for using piddle.")
         exit(0)
-    else:
-        print("Starting over!")
-        main()
 
 # Call main function
-main()
+if __name__ == '__main__':
+   main()
