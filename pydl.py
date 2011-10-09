@@ -79,8 +79,8 @@ def get_overall_length(fileNameUrls, baseDir):
 def more_to_do_query():
     moreDownloads = query_response('Do you want to download more files?')
     if moreDownloads == 'n':
-        moreDownloads = query_response('Do you want to download from a single link?')
-        if(moreDownload == 'y'):
+        moreDownloads =query_response('Do you want to download from a single link?')
+        if(moreDownloads == 'y'):
           reg_download_info()
         else:
           print('need to handle something here********')
