@@ -166,7 +166,7 @@ and specifying where to save them, are as simple as possible. Let's get to it!""
             tx = Thread(target=getOverallLength(file,args.outputDir[0]))
             print("thread start")
             tx.start()
-        #getOverallLength(file,args.outputDir[0])
+        #get_overall_length(file,args.outputDir[0])
     elif(args.cUrls):
             for url in args.cUrls:
                 print("this hasn't been configured yet.")
