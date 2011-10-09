@@ -20,18 +20,13 @@
 # progressbar adds some bling for the user to look at while we work.  To get
 # progressbar to work, pip2 install progressbar.
 
-import os
-import sys
-import urllib
-import urllib2
-import fileinput
-import argparse
+import os, sys, urllib, urllib2, fileinput, argparse
 from progressbar import *
 from threading import Thread # Because multi-threading is bad a$$! :)
 
 # Now we are going to define the actual program API, these are the functions
-# that are going to actually do work.  TODO: This still feels very "scripty" It
-# needs to be cleaned up.
+# that are going to actually do work.  TODO: A class should go in here somwhere
+# to keep things clean and to properly use multi-threading.
 
 # The function that actually gets stuff
 def getRegDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
@@ -152,8 +147,8 @@ def fileLoopCheck():
 
 # This is the funtion that starts it all
 def main():
-    print("Hello! I am going to ensure that downloading your files, renaming them, \
-    and specifying where to save them, are as simple as possible. Let's get to it!")
+    print(""""Hello! I am going to ensure that downloading your files, renaming them,\
+    and specifying where to save them, are as simple as possible. Let's get to it!""")
     print('Be warned! File Looping has been implemented but is experimental.')
     print('Downloading large groups of files could lead to RAM abuse.')
     # Argument parsing, wheeee!!!
@@ -176,10 +171,12 @@ def main():
                 print("this hasn't been configured yet.")
         else:
             fileLoopCheck()
+    else:
+        fileLoopCheck()
 
 #A function to provide a clean exit from anywhere in the program
 def cleanExit():
-    exitCheck = raw_input("Would you like to exit the program?")
+    exitCheck = raw_input("Would you like to exit the program?(y/n)")
     if exitCheck != 'n' and exitCheck != 'N':
         print ("Exiting now!")
         exit(0)
