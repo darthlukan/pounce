@@ -27,32 +27,11 @@ import urllib2
 import fileinput
 import argparse
 from progressbar import *
-from threading import Thread
+from threading import Thread # Because multi-threading is bad a$$! :)
 
 # Now we are going to define the actual program API, these are the functions
 # that are going to actually do work.  TODO: This still feels very "scripty" It
 # needs to be cleaned up.
-
-# CLI argument parsing, TODO: Shorten the lines?
-parser = argparse.ArgumentParser(description='pydl argument information.')
-parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles', help='Given the full path load each URL in the file. This will also take multiple file arguments.')
-parser.add_argument('-d', '--dir',   nargs=1, action= 'store', default=".", dest='outputDir', help='In a given directory check all files for URLs and download those.')
-parser.add_argument('-u', '--url', nargs='*', action='append', dest='cUrls', help='This will wget 1-N urls. Use space as the delimitter.')
-parser.add_argument('-o', '--output', nargs=1,  action='store', dest='outputDir', help='Move all downloaded files to this directory.')
-parser.add_argument('-v', '--version', action='version', version='%(prog)s-0.01', help ='Current version of pydl.py')
-
-args = parser.parse_args()
-if(args.cFiles):
-    for file in args.cFiles:
-        tx = Thread(target=getOverallLength(file,args.outputDir[0]))
-        print("thread start")
-        tx.start()
-#getOverallLength(file,args.outputDir[0])
-if(args.cUrls):
-    for url in args.cUrls:
-        print("this hasn't been configured yet.")
-else:
-    fileLoopCheck()
 
 # A function to provide a clean exit from anywhere in the program
 def cleanExit():
@@ -81,6 +60,7 @@ def getRegDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
 def getSpecialDownload(urlToGetFile, baseDir):
     urllib.urlretrieve(urlToGetFile, baseDir)
 
+# This gets the overall length of the download job, used in progressbar
 def getOverallLength(fileNameUrls, baseDir):
     fi = fileinput.input(fileNameUrls)
     overallLength = 0
@@ -91,6 +71,7 @@ def getOverallLength(fileNameUrls, baseDir):
         overallLength += int(data)
     specialDownloadWork(fileNameUrls, baseDir, overallLength)
 
+# Oh, you thought you were done? Nope, I'm gonna ask you more questions :)
 def moreToDoQuery():
     moreDownloads = raw_input('Do you want to download more files?(y/n/q): ')
     if moreDownloads == 'n'\
@@ -116,6 +97,7 @@ def moreToDoQuery():
         print("Let's try that again...")
         moreToDoQuery()
 
+# Do some work and give us a progressbar
 def specialDownloadWork(fileNameUrls, baseDir, overallLength):
     if not baseDir.endswith('/') and baseDir != '':
         baseDir += '/'
@@ -150,6 +132,7 @@ def specialDownloadInfo():
         cleanExit()
     getOverallLength(fileNameUrls, baseDir)
 
+# Regular download setup
 def regDownloadInfo():
     urlToGetFile = raw_input('Please enter the download URL (Q to quit): ')
     if urlToGetFile == 'q' or urlToGetFile == 'Q':
@@ -159,6 +142,7 @@ def regDownloadInfo():
         cleanExit()
     getRegDownload(urlToGetFile, fileNameToSave)
 
+# Initial tests to decide where to go
 def fileLoopCheck():
     specialDownload = raw_input('Do you need to import a file with links?(y/n/q): ')
     if specialDownload == 'n' or specialDownload == 'N':
@@ -171,11 +155,33 @@ def fileLoopCheck():
         print("There was an error in your response, let's try again...")
         fileLoopCheck()
 
+# This is the funtion that starts it all
 def main():
     print("Hello! I am going to ensure that downloading your files, renaming them, \
     and specifying where to save them, are as simple as possible. Let's get to it!")
     print('Be warned! File Looping has been implemented but is experimental.')
     print('Downloading large groups of files could lead to RAM abuse.')
+    fileLoopCheck()
+
+# CLI argument parsing, because options are cool!
+parser = argparse.ArgumentParser(description='pydl argument information.')
+parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles', help='Given the full path load each URL in the file. This will also take multiple file arguments.')
+parser.add_argument('-d', '--dir',   nargs=1, action= 'store', default=".", dest='outputDir', help='In a given directory check all files for URLs and download those.')
+parser.add_argument('-u', '--url', nargs='*', action='append', dest='cUrls', help='This will wget 1-N urls. Use space as the delimitter.')
+parser.add_argument('-o', '--output', nargs=1,  action='store', dest='outputDir', help='Move all downloaded files to this directory.')
+parser.add_argument('-v', '--version', action='version', version='%(prog)s-0.01', help ='Current version of pydl.py')
+
+args = parser.parse_args()
+if(args.cFiles):
+    for file in args.cFiles:
+        tx = Thread(target=getOverallLength(file,args.outputDir[0]))
+        print("thread start")
+        tx.start()
+#getOverallLength(file,args.outputDir[0])
+if(args.cUrls):
+    for url in args.cUrls:
+        print("this hasn't been configured yet.")
+else:
     fileLoopCheck()
 
 # Call main function
