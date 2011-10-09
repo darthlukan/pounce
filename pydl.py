@@ -20,7 +20,7 @@ import urllib
 import urllib2
 import fileinput
 import argparse
-from progressbar import ProgressBar
+from progressbar import *
 from threading import Thread # Because multi-threading is bad a$$! :)
 
 # Now we are going to define the actual program API, these are the functions
@@ -39,10 +39,11 @@ def get_reg_download(urlToGetFile, fileNameToSave):  # Grab the file(s)
     widgets = ['Download Progress: ', Percentage(), ' ',
                    Bar(marker='#',left='[',right=']'),
                    ' ', ETA(), ' ', FileTransferSpeed()]
-    pbar = ProgressBar(widgets=widgets, maxval=filelen)
-    pbar.start()
+    pbar = ProgressBar(widgets=widgets, maxval=filelen).start()
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
-    pabar.update(10*data+1)
+    for i in range(filelen):
+        time.sleep(0.01)
+        pbar.update(i+1)
     pbar.finish()
     more_to_do_query()
 
@@ -105,7 +106,7 @@ def special_download_work(fileNameUrls, baseDir, overallLength):
     for line in fi:
         urlToGetFile = line[:-1]
         fileNameToSave = baseDir + urlToGetFile[urlToGetFile.rfind('/')+1:]
-        getSpecialDownload(urlToGetFile, fileNameToSave)
+        get_special_download(urlToGetFile, fileNameToSave)
         cl += 1
         pbar.update(overallLength / nl * cl)
     pbar.finish()
