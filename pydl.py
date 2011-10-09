@@ -33,7 +33,8 @@ from threading import Thread # Because multi-threading is bad a$$! :)
 # that are going to actually do work.  TODO: This still feels very "scripty" It
 # needs to be cleaned up.
 
-# A function to provide a clean exit from anywhere in the program
+
+#A function to provide a clean exit from anywhere in the program
 def cleanExit():
     print ("Exiting now!")
     exit(0)
