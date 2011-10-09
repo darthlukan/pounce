@@ -33,12 +33,6 @@ from threading import Thread # Because multi-threading is bad a$$! :)
 # that are going to actually do work.  TODO: This still feels very "scripty" It
 # needs to be cleaned up.
 
-
-#A function to provide a clean exit from anywhere in the program
-def cleanExit():
-    print ("Exiting now!")
-    exit(0)
-
 # The function that actually gets stuff
 def getRegDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
     filelen=0
@@ -184,6 +178,16 @@ if(args.cUrls):
         print("this hasn't been configured yet.")
 else:
     fileLoopCheck()
+
+#A function to provide a clean exit from anywhere in the program
+def cleanExit():
+    exitCheck = raw_input("Would you like to exit the program?")
+    if exitCheck != 'n' and exitCheck != 'N':
+        print ("Exiting now!")
+        exit(0)
+    else:
+        print("Starting over!")
+        main()
 
 # Call main function
 main()
