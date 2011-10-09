@@ -13,15 +13,14 @@
 # Note: This software should be considered experimental!            #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Explanation of import list:
-# os and sys are needed to make sure that files and system level stuff
-# are handled properly.  urllib(2) for communications (we are downloading)
-# fileinput handles looping over links in a file (txt for now, csv later)
-# progressbar adds some bling for the user to look at while we work.  To get
-# progressbar to work, pip2 install progressbar.
 
-import os, sys, urllib, urllib2, fileinput, argparse
-from progressbar import *
+import os
+import sys
+import urllib
+import urllib2
+import fileinput
+import argparse
+from progressbar import ProgressBar
 from threading import Thread # Because multi-threading is bad a$$! :)
 
 # Now we are going to define the actual program API, these are the functions
@@ -29,7 +28,7 @@ from threading import Thread # Because multi-threading is bad a$$! :)
 # to keep things clean and to properly use multi-threading.
 
 # The function that actually gets stuff
-def getRegDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
+def get_reg_download(urlToGetFile, fileNameToSave):  # Grab the file(s)
     filelen=0
     data=str(urllib2.urlopen(urlToGetFile).info())
     data=data[data.find("Content-Length"):]
@@ -43,16 +42,16 @@ def getRegDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
     pbar = ProgressBar(widgets=widgets, maxval=filelen)
     pbar.start()
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
-    # insert better updating of progressbar here
+    pabar.update(10*data+1)
     pbar.finish()
-    moreToDoQuery()
+    more_to_do_query()
 
 # This looks redundant now, but just wait... :)
-def getSpecialDownload(urlToGetFile, baseDir):
+def get_special_download(urlToGetFile, baseDir):
     urllib.urlretrieve(urlToGetFile, baseDir)
 
 # This gets the overall length of the download job, used in progressbar
-def getOverallLength(fileNameUrls, baseDir):
+def get_overall_length(fileNameUrls, baseDir):
     fi = fileinput.input(fileNameUrls)
     overallLength = 0
     for line in fi:
@@ -60,36 +59,36 @@ def getOverallLength(fileNameUrls, baseDir):
         data = data[data.find('Content-Length'):]
         data = data[16:data.find('\r')]
         overallLength += int(data)
-    specialDownloadWork(fileNameUrls, baseDir, overallLength)
+    special_download_work(fileNameUrls, baseDir, overallLength)
 
 # Oh, you thought you were done? Nope, I'm gonna ask you more questions :)
-def moreToDoQuery():
+def more_to_do_query():
     moreDownloads = raw_input('Do you want to download more files?(y/n/q): ')
     if moreDownloads == 'n'\
     or moreDownloads == 'N'\
     or moreDownloads == 'q'\
     or moreDownloads == 'Q':
         print('Until next time!')
-        cleanExit()
+        clean_exit()
     elif moreDownloads == 'y' or moreDownloads == 'Y':
         print("""Do you need to loop over another file? Or do you only need to
         download from a single link?""")
         moreDownloadType = raw_input("File Loop = 'loop', Single Link = 'single', or 'Q' to Quit: ")
         if moreDownloadType == 'loop' or moreDownloadType == 'l':
-            specialDownloadInfo()
+            special_download_info()
         elif moreDownloadType == 'single' or moreDownloadType == 's':
-            regDownloadInfo()
+            reg_download_info()
         elif moreDownloadType == 'Q' or moreDownloadType == 'q':
-            cleanExit()
+            clean_exit()
         else:
             print('Invalid response recorded, please try again.')
-            moreToDoQuery()
+            more_to_do_query()
     else:
         print("Let's try that again...")
-        moreToDoQuery()
+        more_to_do_query()
 
 # Do some work and give us a progressbar
-def specialDownloadWork(fileNameUrls, baseDir, overallLength):
+def special_download_work(fileNameUrls, baseDir, overallLength):
     if not baseDir.endswith('/') and baseDir != '':
         baseDir += '/'
     fi = fileinput.input(fileNameUrls)
@@ -111,40 +110,40 @@ def specialDownloadWork(fileNameUrls, baseDir, overallLength):
         pbar.update(overallLength / nl * cl)
     pbar.finish()
     print('All done!')
-    moreToDoQuery()
+    more_to_do_query()
 
 #This function is going to handle our special download info for file looping.
-def specialDownloadInfo():
+def special_download_info():
     fileNameUrls = raw_input('Enter the filename (with path) that contains URLs (Q to quit): ')
     if fileNameUrls == 'q' or fileNameUrls == 'Q':
-        cleanExit()
+        clean_exit()
     baseDir = raw_input('Enter the directory path where you want the files saved (Q to quit): ')
     if baseDir == 'q' or baseDir == 'Q':
-        cleanExit()
-    getOverallLength(fileNameUrls, baseDir)
+        clean_exit()
+    get_overall_length(fileNameUrls, baseDir)
 
 # Regular download setup
-def regDownloadInfo():
+def reg_download_info():
     urlToGetFile = raw_input('Please enter the download URL (Q to quit): ')
     if urlToGetFile == 'q' or urlToGetFile == 'Q':
-        cleanExit()
+        clean_exit()
     fileNameToSave = raw_input('Enter the desired path and filename (Q to quit): ')
     if fileNameToSave == 'q' or fileNameToSave == 'Q':
-        cleanExit()
-    getRegDownload(urlToGetFile, fileNameToSave)
+        clean_exit()
+    get_reg_download(urlToGetFile, fileNameToSave)
 
 # Initial tests to decide where to go
-def fileLoopCheck():
+def file_loop_check():
     specialDownload = raw_input('Do you need to import a file with links?(y/n/q): ')
     if specialDownload == 'n' or specialDownload == 'N':
-        regDownloadInfo()
+        reg_download_info()
     elif specialDownload == 'y' or specialDownload == 'Y':
-        specialDownloadInfo()
+        special_download_info()
     elif specialDownload == 'q' or specialDownload == 'Q':
-        cleanExit()
+        clean_exit()
     else:
         print("There was an error in your response, let's try again...")
-        fileLoopCheck()
+        file_loop_check()
 
 # This is the funtion that starts it all
 def main():
@@ -171,12 +170,12 @@ def main():
             for url in args.cUrls:
                 print("this hasn't been configured yet.")
         else:
-            fileLoopCheck()
+            file_loop_check()
     else:
-        fileLoopCheck()
+        file_loop_check()
 
 #A function to provide a clean exit from anywhere in the program
-def cleanExit():
+def clean_exit():
     exitCheck = raw_input("Would you like to exit the program?(y/n)")
     if exitCheck != 'n' and exitCheck != 'N':
         print ("Exiting now!")
