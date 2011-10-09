@@ -43,6 +43,7 @@ def getRegDownload(urlToGetFile, fileNameToSave):  # Grab the file(s)
     pbar = ProgressBar(widgets=widgets, maxval=filelen)
     pbar.start()
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
+    # insert better updating of progressbar here
     pbar.finish()
     moreToDoQuery()
 
