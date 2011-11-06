@@ -21,7 +21,7 @@ import urllib
 import urllib2
 import argparse
 import fileinput
-import progressbar
+from progressbar import *
 from threading import Thread # Because multi-threading is bad a$$! :)
 
 # Now we are going to define the actual program API, these are the functions
