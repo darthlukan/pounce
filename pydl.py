@@ -16,6 +16,7 @@
 
 import os
 import sys
+import time
 import urllib
 import urllib2
 import fileinput
@@ -49,7 +50,7 @@ def get_reg_download(urlToGetFile, fileNameToSave):  # Grab the file(s)
 
     # Placeholder for progressbar:
     widgets = ['Download Progress: ', Percentage(), ' ',
-                   Bar(marker='#',left='[',right=']'),
+                   Bar(marker='>',left='[',right=']'),
                    ' ', ETA(), ' ', FileTransferSpeed()]
     pbar = ProgressBar(widgets=widgets, maxval=filelen).start()
     urllib.urlretrieve(urlToGetFile, fileNameToSave)
