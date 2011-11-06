@@ -113,7 +113,7 @@ def special_download_work(fileNameUrls, baseDir, overallLength):
 
 class InfoGather:
     #This function is going to handle our special download info for file looping.
-    def special_download_info():
+    def special_download_info(self):
         fileNameUrls = raw_input('Enter the filename (with path) that contains URLs (Q to quit): ')
         if fileNameUrls.upper() == 'Q':
             clean_exit()
@@ -123,7 +123,7 @@ class InfoGather:
         get_overall_length(fileNameUrls, baseDir)
 
     # Regular download setup
-    def reg_download_info():
+    def reg_download_info(self):
         urlToGetFile = raw_input('Please enter the download URL (Q to quit): ')
         if urlToGetFile.upper() == 'Q':
             clean_exit()
@@ -133,12 +133,12 @@ class InfoGather:
         get_reg_download(urlToGetFile, fileNameToSave)
 
     # Initial tests to decide where to go
-    def file_loop_check():
+    def file_loop_check(self):
         specialDownload = query_response('Do you need to import a file with links?')
         if specialDownload == 'n':
-            reg_download_info()
+            self.reg_download_info()
         else:
-            special_download_info()
+            self.special_download_info()
 
 # This is the function that starts it all
 def main():
