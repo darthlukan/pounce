@@ -19,9 +19,9 @@ import sys
 import time
 import urllib
 import urllib2
-import fileinput
 import argparse
-from progressbar import *
+import fileinput
+import progressbar
 from threading import Thread # Because multi-threading is bad a$$! :)
 
 # Now we are going to define the actual program API, these are the functions
@@ -81,9 +81,9 @@ def more_to_do_query():
     if moreDownloads == 'n':
         moreDownloads =query_response('Do you want to download from a single link?')
         if(moreDownloads == 'y'):
-          ig.reg_download_info()
+            ig.reg_download_info()
         else:
-          print('need to handle something here********')
+            print('need to handle something here********')
     elif moreDownloads == 'y':
             ig.special_download_info()
 
@@ -108,6 +108,9 @@ def special_download_work(fileNameUrls, baseDir, overallLength):
         get_special_download(urlToGetFile, fileNameToSave)
         cl += 1
         pbar.update(overallLength / nl * cl)
+        for i in range(overallLength):
+            time.sleep(0.01)
+            pbar.update(i+1)
     pbar.finish()
     print('All done!')
     more_to_do_query()
@@ -148,7 +151,7 @@ def main():
     print("Be warned! File Looping has been implemented but is experimental.")
     print("Downloading large groups of files could lead to RAM abuse.")
     print("The progress bar is still being worked on, don't be afraid if no output.")
-    
+
     # Argument parsing, wheeee!!!
     parser = argparse.ArgumentParser(description='pydl argument information.')
     parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles',
@@ -161,10 +164,10 @@ def main():
            help='Move all downloaded files to this directory.')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s-0.01',
            help ='Current version of pydl.py')
-    
+
     # Lets define an instance of our info class here
-    ig = InfoGather()   
-    
+    ig = InfoGather()
+
     # Do stuff
     args = parser.parse_args()
     if(args.cFiles):
