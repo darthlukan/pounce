@@ -80,11 +80,11 @@ def more_to_do_query():
     if moreDownloads == 'n':
         moreDownloads =query_response('Do you want to download from a single link?')
         if(moreDownloads == 'y'):
-          reg_download_info()
+          ig.reg_download_info()
         else:
           print('need to handle something here********')
     elif moreDownloads == 'y':
-            special_download_info()
+            ig.special_download_info()
 
 # Do some work and give us a progressbar
 def special_download_work(fileNameUrls, baseDir, overallLength):
