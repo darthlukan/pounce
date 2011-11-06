@@ -15,9 +15,7 @@
 
 
 import os
-import sys
 import time
-import urllib
 import urllib2
 import argparse
 import fileinput
@@ -30,7 +28,7 @@ from threading import Thread # Because multi-threading is bad a$$! :)
 
 def query_response(question):
     prompt = " [y/n/q] "
-    response = raw_input(question+prompt).lower()
+    response = raw_input(question + prompt).lower()
     if response == 'q':
         clean_exit()
     elif response == 'y' or response == 'n':
@@ -50,10 +48,10 @@ def get_reg_download(urlToGetFile, fileNameToSave):  # Grab the file(s)
 
     # Placeholder for progressbar:
     widgets = ['Download Progress: ', Percentage(), ' ',
-                   Bar(marker='>',left='[',right=']'),
+                   Bar(marker='>', left='[',right=']'),
                    ' ', ETA(), ' ', FileTransferSpeed()]
     pbar = ProgressBar(widgets=widgets, maxval=filelen).start()
-    urllib.urlretrieve(urlToGetFile, fileNameToSave)
+    urllib2.urlopen(urlToGetFile, fileNameToSave)
     for i in range(filelen):
         time.sleep(0.01)
         pbar.update(i+1)
@@ -62,7 +60,7 @@ def get_reg_download(urlToGetFile, fileNameToSave):  # Grab the file(s)
 
 # This looks redundant now, but just wait... :)
 def get_special_download(urlToGetFile, baseDir):
-    urllib.urlretrieve(urlToGetFile, baseDir)
+    urllib2.urlopen(urlToGetFile, baseDir)
 
 # This gets the overall length of the download job, used in progressbar
 def get_overall_length(fileNameUrls, baseDir):
@@ -104,11 +102,11 @@ def special_download_work(fileNameUrls, baseDir, overallLength):
     pbar.start()
     for line in fi:
         urlToGetFile = line[:-1]
-        fileNameToSave = baseDir + urlToGetFile[urlToGetFile.rfind('/')+1:]
+        fileNameToSave = os.path.join(baseDir,urlToGetFile[urlToGetFile.rfind('/')+1:])
         get_special_download(urlToGetFile, fileNameToSave)
         cl += 1
         pbar.update(overallLength / nl * cl)
-        for i in range(overallLength):
+        for i in xrange(overallLength):
             time.sleep(0.01)
             pbar.update(i+1)
     pbar.finish()
