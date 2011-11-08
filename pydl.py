@@ -146,9 +146,7 @@ class InfoGather:
 def main():
     print("Hello! I am going to ensure that downloading your files, renaming them, ")
     print("and specifying where to save them, are as simple as possible. Let's get to it!")
-    print("Be warned! File Looping has been implemented but is experimental.")
-    print("Downloading large groups of files could lead to RAM abuse.")
-    print("The progress bar is still being worked on, don't be afraid if no output.")
+    print("!!!Download speeds are unexpectedly slow, this issue is being researched.!!!")
 
     # Argument parsing, wheeee!!!
     parser = argparse.ArgumentParser(description='pydl argument information.')
