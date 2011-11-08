@@ -155,10 +155,10 @@ def main():
     parser.add_argument('-d', '--dir',   nargs=1, action= 'store', default=".", dest='outputDir',
            help='In a given directory check all files for URLs and download those.')
     parser.add_argument('-u', '--url', nargs='*', action='append', dest='cUrls',
-           help='This will wget 1-N urls. Use space as the delimitter.')
+           help='This will grab 1-N urls. Use space as the delimitter.')
     parser.add_argument('-o', '--output', nargs=1,  action='store', dest='outputDir',
            help='Move all downloaded files to this directory.')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s-0.01',
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s-0.1dev',
            help ='Current version of pydl.py')
 
     # Lets define an instance of our info class here
