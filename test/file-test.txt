@@ -1,4 +1,4 @@
 http://download.blender.org/release/Blender2.59/blender-2.59-linux-glibc27-x86_64.tar.bz2
 ftp://mirror.cs.vt.edu/pub/SabayonLinux/iso/Sabayon_Linux_6_amd64_G.iso
 http://ftp.osuosl.org/pub/archlinux/iso/2011.08.19/
-ftp://ftp.osuosl.org/pub/archlinux/iso/2011.08.19/
+
