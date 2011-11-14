@@ -53,7 +53,6 @@ def get_reg_download(urlToGetFile, fileNameToSave):  # Grab the file(s)
     pbar = ProgressBar(widgets=widgets, maxval=filelen).start()
     urllib2.urlopen(urlToGetFile, fileNameToSave)
     for i in range(filelen):
-        time.sleep(0.01)
         pbar.update(i+1)
     pbar.finish()
     more_to_do_query()
@@ -107,7 +106,6 @@ def special_download_work(fileNameUrls, baseDir, overallLength):
         cl += 1
         pbar.update(overallLength / nl * cl)
         for i in xrange(overallLength):
-            time.sleep(0.01)
             pbar.update(i+1)
     pbar.finish()
     print('All done!')
