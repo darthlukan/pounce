@@ -15,7 +15,6 @@
 
 
 import os
-import time
 import urllib2
 import argparse
 import fileinput
@@ -74,15 +73,16 @@ def get_overall_length(fileNameUrls, baseDir):
 
 # Oh, you thought you were done? Nope, I'm gonna ask you more questions :)
 def more_to_do_query():
-    moreDownloads = query_response('Do you want to download more files?')
+    moreDownloads = query_response('Do you want to download more files?(y/n): ')
     if moreDownloads == 'n':
-        moreDownloads =query_response('Do you want to download from a single link?')
-        if(moreDownloads == 'y'):
-            ig.reg_download_info()
-        else:
-            print('need to handle something here********')
+        print('Until next time!')
+        clean_exit()
     elif moreDownloads == 'y':
-            ig.special_download_info()
+            print('Re-routing...')
+            ig.file_loop_check()
+    else:
+        print('Something bad happened, please report this error to the creator.')
+        clean_exit()
 
 # Do some work and give us a progressbar
 def special_download_work(fileNameUrls, baseDir, overallLength):
@@ -144,8 +144,7 @@ class InfoGather:
 def main():
     print("Hello! I am going to ensure that downloading your files, renaming them, ")
     print("and specifying where to save them, are as simple as possible. Let's get to it!")
-    print("!!!Download speeds are unexpectedly slow, this issue is being researched.!!!")
-
+    
     # Argument parsing, wheeee!!!
     parser = argparse.ArgumentParser(description='pydl argument information.')
     parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles',
