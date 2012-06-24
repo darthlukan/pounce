@@ -19,13 +19,14 @@ import urllib2
 import argparse
 import fileinput
 from progressbar import *
-from threading import Thread # Because multi-threading is bad a$$! :)
-
-# Now we are going to define the actual program API, these are the functions
-# that are going to actually do work.  TODO: A class should go in here somwhere
-# to keep things clean and to properly use multi-threading.
+from threading import Thread
 
 def query_response(question):
+    '''
+    Holds command line responses and passes them to the appropriate
+    functions.  If response is not "q", returns response as string for
+    processing.
+    '''
     prompt = " [y/n/q] "
     response = raw_input(question + prompt).lower()
     if response == 'q':
@@ -37,15 +38,28 @@ def query_response(question):
         query_response(question)
 
 
-# The function that actually gets stuff
-def get_reg_download(urlToGetFile, fileNameToSave):  # Grab the file(s)
+
+def get_reg_download(urlToGetFile, fileNameToSave):
+    '''
+    Pulls the remote file with urllib2 and displays a progressbar.
+        Takes two arguments:
+
+        urlToGetFile: string url (with filename) of the file we want to
+        download.
+
+        fileNameToSave: string absolute path and filename that we want to end
+        up with.  If no path is given, the cwd is the target.  Breaks if no
+        write permissions to cwd!
+
+        returns nothing, redirects to more_to_do_query() on completion.
+    '''
     filelen=0
     data=str(urllib2.urlopen(urlToGetFile).info())
     data=data[data.find("Content-Length"):]
     data=data[16:data.find("\r")]
     filelen+=int(data)
 
-    # Placeholder for progressbar:
+    # Sets up progressbar:
     widgets = ['Download Progress: ', Percentage(), ' ',
                    Bar(marker='>', left='[',right=']'),
                    ' ', ETA(), ' ', FileTransferSpeed()]
@@ -60,8 +74,12 @@ def get_reg_download(urlToGetFile, fileNameToSave):  # Grab the file(s)
 def get_special_download(urlToGetFile, baseDir):
     urllib2.urlopen(urlToGetFile, baseDir)
 
-# This gets the overall length of the download job, used in progressbar
 def get_overall_length(fileNameUrls, baseDir):
+    '''
+    Prepares the transaction for special downloads.  This is specific to urls
+    contained in text files (for now, csv later).  Iterates over the provided
+    file argument and sets each line to be downloaded in turn.
+    '''
     fi = fileinput.input(fileNameUrls)
     overallLength = 0
     for line in fi:
@@ -71,8 +89,11 @@ def get_overall_length(fileNameUrls, baseDir):
         overallLength += int(data)
     special_download_work(fileNameUrls, baseDir, overallLength)
 
-# Oh, you thought you were done? Nope, I'm gonna ask you more questions :)
 def more_to_do_query():
+    '''
+    Called by other functions in order to provide an interface for users to
+    continue to download files or to exit.
+    '''
     moreDownloads = query_response('Do you want to download more files?(y/n): ')
     if moreDownloads == 'n':
         print('Until next time!')
@@ -84,8 +105,12 @@ def more_to_do_query():
         print('Something bad happened, please report this error to the creator.')
         clean_exit()
 
-# Do some work and give us a progressbar
 def special_download_work(fileNameUrls, baseDir, overallLength):
+    '''
+    The actual worker for special downloads.  Must be called by
+    get_overall_length() in order to work! Calls get_special_download() on
+    each line of the file provided in order to download the desired files.
+    '''
     if not baseDir.endswith('/') and baseDir != '':
         baseDir += '/'
     fi = fileinput.input(fileNameUrls)
@@ -111,9 +136,18 @@ def special_download_work(fileNameUrls, baseDir, overallLength):
     print('All done!')
     more_to_do_query()
 
+
 class InfoGather:
-    #This function is going to handle our special download info for file looping.
+    '''
+    Contains methods related to information gathering. Provides basic text
+    interface for terminal users.
+    '''
     def special_download_info(self):
+        '''
+        Gathers information based on special download requests.  Accepts a
+        file as input and passes it to the relevant function.  Provides ability
+        for users to exit cleanly based on input.
+        '''
         fileNameUrls = raw_input('Enter the filename (with path) that contains URLs (Q to quit): ')
         if fileNameUrls.upper() == 'Q':
             clean_exit()
@@ -122,8 +156,12 @@ class InfoGather:
             clean_exit()
         get_overall_length(fileNameUrls, baseDir)
 
-    # Regular download setup
     def reg_download_info(self):
+        '''
+        Gathers information based on regular download requests. Takes a url
+        and passes it to the relevant function.  Provides ability for users
+        to exit cleanly based on input.
+        '''
         urlToGetFile = raw_input('Please enter the download URL (Q to quit): ')
         if urlToGetFile.upper() == 'Q':
             clean_exit()
@@ -132,20 +170,24 @@ class InfoGather:
             clean_exit()
         get_reg_download(urlToGetFile, fileNameToSave)
 
-    # Initial tests to decide where to go
     def file_loop_check(self):
+        '''Queries the user and directs them based on input.'''
         specialDownload = query_response('Do you need to import a file with links?')
         if specialDownload == 'n':
             self.reg_download_info()
         else:
             self.special_download_info()
 
-# This is the function that starts it all
+
 def main():
+    '''
+    Greets the user, requests and parses arguments, and calls relevant
+    functions and methods.
+    '''
+
     print("Hello! I am going to ensure that downloading your files, renaming them, ")
     print("and specifying where to save them, are as simple as possible. Let's get to it!")
-    
-    # Argument parsing, wheeee!!!
+
     parser = argparse.ArgumentParser(description='pydl argument information.')
     parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles',
            help='Given the full path load each URL in the file. This will also take multiple file arguments.')
@@ -158,10 +200,8 @@ def main():
     parser.add_argument('-v', '--version', action='version', version='%(prog)s-0.1dev',
            help ='Current version of pydl.py')
 
-    # Lets define an instance of our info class here
     ig = InfoGather()
 
-    # Do stuff
     args = parser.parse_args()
     if(args.cFiles):
         for file in args.cFiles:
@@ -175,11 +215,14 @@ def main():
     else:
         ig.file_loop_check()
 
-#A function to provide a clean exit from anywhere in the program
 def clean_exit():
-        print ("Thank you for using piddle.")
-        exit(0)
+    '''
+    If we call this, we are exiting based on user input and not because of an
+    error.
+    '''
+    # TODO: Expand into its own class with actual error/exception/exit handling.
+    print ("Thank you for using piddle.")
+    exit(0)
 
-# Call main function
 if __name__ == '__main__':
     main()
