@@ -21,120 +21,128 @@ import fileinput
 from progressbar import *
 from threading import Thread
 
-def query_response(question):
+class Workers:
     '''
-    Holds command line responses and passes them to the appropriate
-    functions.  If response is not "q", returns response as string for
-    processing.
+    Provides methods that do all of the heavy lifting.  Methods contained
+    require use of the InfoGather class methods prior to being called in
+    order to function properly as a script.
     '''
-    prompt = " [y/n/q] "
-    response = raw_input(question + prompt).lower()
-    if response == 'q':
-        clean_exit()
-    elif response == 'y' or response == 'n':
-        return response;
-    else:
-        print('Invalid response recorded, please try again.\n')
-        query_response(question)
+
+
+    def query_response(self, question):
+        '''
+        Holds command line responses and passes them to the appropriate
+        functions.  If response is not "q", returns response as string for
+        processing.
+        '''
+        prompt = " [y/n/q] "
+        response = raw_input(question + prompt).lower()
+        if response == 'q':
+            clean_exit()
+        elif response == 'y' or response == 'n':
+            return response;
+        else:
+            print('Invalid response recorded, please try again.\n')
+            query_response(question)
 
 
 
-def get_reg_download(urlToGetFile, fileNameToSave):
-    '''
-    Pulls the remote file with urllib2 and displays a progressbar.
-        Takes two arguments:
+    def get_reg_download(self, urlToGetFile, fileNameToSave):
+        '''
+        Pulls the remote file with urllib2 and displays a progressbar.
+            Takes two arguments:
 
-        urlToGetFile: string url (with filename) of the file we want to
-        download.
+            urlToGetFile: string url (with filename) of the file we want to
+            download.
 
-        fileNameToSave: string absolute path and filename that we want to end
-        up with.  If no path is given, the cwd is the target.  Breaks if no
-        write permissions to cwd!
+            fileNameToSave: string absolute path and filename that we want to end
+            up with.  If no path is given, the cwd is the target.  Breaks if no
+            write permissions to cwd!
 
-        returns nothing, redirects to more_to_do_query() on completion.
-    '''
-    filelen=0
-    data=str(urllib2.urlopen(urlToGetFile).info())
-    data=data[data.find("Content-Length"):]
-    data=data[16:data.find("\r")]
-    filelen+=int(data)
+            returns nothing, redirects to more_to_do_query() on completion.
+        '''
+        filelen=0
+        data=str(urllib2.urlopen(urlToGetFile).info())
+        data=data[data.find("Content-Length"):]
+        data=data[16:data.find("\r")]
+        filelen+=int(data)
 
-    # Sets up progressbar:
-    widgets = ['Download Progress: ', Percentage(), ' ',
-                   Bar(marker='>', left='[',right=']'),
-                   ' ', ETA(), ' ', FileTransferSpeed()]
-    pbar = ProgressBar(widgets=widgets, maxval=filelen).start()
-    urllib2.urlopen(urlToGetFile, fileNameToSave)
-    for i in range(filelen):
-        pbar.update(i+1)
-    pbar.finish()
-    more_to_do_query()
-
-# This looks redundant now, but just wait... :)
-def get_special_download(urlToGetFile, baseDir):
-    urllib2.urlopen(urlToGetFile, baseDir)
-
-def get_overall_length(fileNameUrls, baseDir):
-    '''
-    Prepares the transaction for special downloads.  This is specific to urls
-    contained in text files (for now, csv later).  Iterates over the provided
-    file argument and sets each line to be downloaded in turn.
-    '''
-    fi = fileinput.input(fileNameUrls)
-    overallLength = 0
-    for line in fi:
-        data = str(urllib2.urlopen(line).info())
-        data = data[data.find('Content-Length'):]
-        data = data[16:data.find('\r')]
-        overallLength += int(data)
-    special_download_work(fileNameUrls, baseDir, overallLength)
-
-def more_to_do_query():
-    '''
-    Called by other functions in order to provide an interface for users to
-    continue to download files or to exit.
-    '''
-    moreDownloads = query_response('Do you want to download more files?(y/n): ')
-    if moreDownloads == 'n':
-        print('Until next time!')
-        clean_exit()
-    elif moreDownloads == 'y':
-            print('Re-routing...')
-            ig.file_loop_check()
-    else:
-        print('Something bad happened, please report this error to the creator.')
-        clean_exit()
-
-def special_download_work(fileNameUrls, baseDir, overallLength):
-    '''
-    The actual worker for special downloads.  Must be called by
-    get_overall_length() in order to work! Calls get_special_download() on
-    each line of the file provided in order to download the desired files.
-    '''
-    if not baseDir.endswith('/') and baseDir != '':
-        baseDir += '/'
-    fi = fileinput.input(fileNameUrls)
-    nl = 0
-    for line in fi:
-        nl += 1
-    fi = fileinput.input(fileNameUrls)
-    cl = 0
-    widgets = ['Overall Progress: ', Percentage(), ' ',
-                Bar(marker = '>', left = '[', right = ']'),
-                ' ', ETA(), ' ', FileTransferSpeed()]
-    pbar = ProgressBar(widgets = widgets, maxval = overallLength)
-    pbar.start()
-    for line in fi:
-        urlToGetFile = line[:-1]
-        fileNameToSave = os.path.join(baseDir,urlToGetFile[urlToGetFile.rfind('/')+1:])
-        get_special_download(urlToGetFile, fileNameToSave)
-        cl += 1
-        pbar.update(overallLength / nl * cl)
-        for i in xrange(overallLength):
+        # Sets up progressbar:
+        widgets = ['Download Progress: ', Percentage(), ' ',
+                       Bar(marker='>', left='[',right=']'),
+                       ' ', ETA(), ' ', FileTransferSpeed()]
+        pbar = ProgressBar(widgets=widgets, maxval=filelen).start()
+        urllib2.urlopen(urlToGetFile, fileNameToSave)
+        for i in range(filelen):
             pbar.update(i+1)
-    pbar.finish()
-    print('All done!')
-    more_to_do_query()
+        pbar.finish()
+        more_to_do_query()
+
+    # This looks redundant now, but just wait... :)
+    def get_special_download(self, urlToGetFile, baseDir):
+        urllib2.urlopen(urlToGetFile, baseDir)
+
+    def get_overall_length(self, fileNameUrls, baseDir):
+        '''
+        Prepares the transaction for special downloads.  This is specific to urls
+        contained in text files (for now, csv later).  Iterates over the provided
+        file argument and sets each line to be downloaded in turn.
+        '''
+        fi = fileinput.input(fileNameUrls)
+        overallLength = 0
+        for line in fi:
+            data = str(urllib2.urlopen(line).info())
+            data = data[data.find('Content-Length'):]
+            data = data[16:data.find('\r')]
+            overallLength += int(data)
+        special_download_work(fileNameUrls, baseDir, overallLength)
+
+    def more_to_do_query(self):
+        '''
+        Called by other functions in order to provide an interface for users to
+        continue to download files or to exit.
+        '''
+        moreDownloads = query_response('Do you want to download more files?(y/n): ')
+        if moreDownloads == 'n':
+            print('Until next time!')
+            clean_exit()
+        elif moreDownloads == 'y':
+                print('Re-routing...')
+                ig.file_loop_check()
+        else:
+            print('Something bad happened, please report this error to the creator.')
+            clean_exit()
+
+    def special_download_work(self, fileNameUrls, baseDir, overallLength):
+        '''
+        The actual worker for special downloads.  Must be called by
+        get_overall_length() in order to work! Calls get_special_download() on
+        each line of the file provided in order to download the desired files.
+        '''
+        if not baseDir.endswith('/') and baseDir != '':
+            baseDir += '/'
+        fi = fileinput.input(fileNameUrls)
+        nl = 0
+        for line in fi:
+            nl += 1
+        fi = fileinput.input(fileNameUrls)
+        cl = 0
+        widgets = ['Overall Progress: ', Percentage(), ' ',
+                    Bar(marker = '>', left = '[', right = ']'),
+                    ' ', ETA(), ' ', FileTransferSpeed()]
+        pbar = ProgressBar(widgets = widgets, maxval = overallLength)
+        pbar.start()
+        for line in fi:
+            urlToGetFile = line[:-1]
+            fileNameToSave = os.path.join(baseDir,urlToGetFile[urlToGetFile.rfind('/')+1:])
+            get_special_download(urlToGetFile, fileNameToSave)
+            cl += 1
+            pbar.update(overallLength / nl * cl)
+            for i in xrange(overallLength):
+                pbar.update(i+1)
+        pbar.finish()
+        print('All done!')
+        more_to_do_query()
 
 
 class InfoGather:
@@ -184,6 +192,7 @@ def main():
     Greets the user, requests and parses arguments, and calls relevant
     functions and methods.
     '''
+    VERSION = '0.1dev'
 
     print("Hello! I am going to ensure that downloading your files, renaming them, ")
     print("and specifying where to save them, are as simple as possible. Let's get to it!")
@@ -197,7 +206,7 @@ def main():
            help='This will grab 1-N urls. Use space as the delimitter.')
     parser.add_argument('-o', '--output', nargs=1,  action='store', dest='outputDir',
            help='Move all downloaded files to this directory.')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s-0.1dev',
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s-' + VERSION,
            help ='Current version of pydl.py')
 
     ig = InfoGather()
