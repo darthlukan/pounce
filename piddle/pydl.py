@@ -28,6 +28,8 @@ class Workers:
     order to function properly as a script.
     '''
 
+    def __init__(self):
+        #TODO: setup connections for GUI use as well as standalone.
 
     def query_response(self, question):
         '''
