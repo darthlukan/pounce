@@ -1,0 +1,23 @@
+Changelog:
+
+Piddle-v0.2.dev:
+	New version
+	Added requisite modules to setup.py:
+		We are now requiring Python-2.7.2+
+		We won't install without pynotify and progressbar
+	Added notification class to let users know when file downloads are complete.
+		This feature is mostly for users who will use the "links in text file" feature
+		as it will allow them to hide their terminal and receive a file by file notification
+		of download completion.
+	Corrected errors in method calls that were not being called with parent class instances.
+
+Piddle-v0.1.dev:
+	Initial release.
+	Initial features:
+		Takes a text file as an argument, will loop over each line in the text file
+		and attempt to download each link.
+		
+		Command line arguments.
+			Optional text file as arg or single link
+
+		Terminal menu (text)
