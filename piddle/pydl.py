@@ -18,9 +18,9 @@ import os
 import urllib2
 import argparse
 import fileinput
+import pynotify
 from progressbar import *
 from threading import Thread
-from gi.repository import Notify
 
 class Workers:
     '''
@@ -29,8 +29,8 @@ class Workers:
     order to function properly as a script.
     '''
 
-    #def __init__(self):
-        #TODO: setup connections for GUI use as well as standalone.
+    def __init__(self):
+        self.n = Notifier()
 
     def query_response(self, question):
         '''
@@ -46,7 +46,7 @@ class Workers:
             return response;
         else:
             print('Invalid response recorded, please try again.\n')
-            query_response(question)
+            self.query_response(question)
 
 
 
@@ -79,8 +79,8 @@ class Workers:
         for i in range(filelen):
             pbar.update(i+1)
         pbar.finish()
-        Notifier.note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
-        more_to_do_query()
+        self.n.note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
+        self.more_to_do_query()
 
     # This looks redundant now, but just wait... :)
     def get_special_download(self, urlToGetFile, baseDir):
@@ -99,14 +99,14 @@ class Workers:
             data = data[data.find('Content-Length'):]
             data = data[16:data.find('\r')]
             overallLength += int(data)
-        special_download_work(fileNameUrls, baseDir, overallLength)
+        self.special_download_work(fileNameUrls, baseDir, overallLength)
 
     def more_to_do_query(self):
         '''
         Called by other functions in order to provide an interface for users to
         continue to download files or to exit.
         '''
-        moreDownloads = query_response('Do you want to download more files?(y/n): ')
+        moreDownloads = self.query_response('Do you want to download more files?(y/n): ')
         if moreDownloads == 'n':
             print('Until next time!')
             clean_exit()
@@ -146,8 +146,8 @@ class Workers:
                 pbar.update(i+1)
         pbar.finish()
         print('All done!')
-        Notifier.note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
-        more_to_do_query()
+        self.n.note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
+        self.more_to_do_query()
 
 
 class InfoGather:
@@ -155,6 +155,10 @@ class InfoGather:
     Contains methods related to information gathering. Provides basic text
     interface for terminal users.
     '''
+
+    def __init__(self):
+        self.work = Workers()
+
     def special_download_info(self):
         '''
         Gathers information based on special download requests.  Accepts a
@@ -167,7 +171,7 @@ class InfoGather:
         baseDir = raw_input('Enter the directory path where you want the files saved (Q to quit): ')
         if baseDir.upper() == 'Q':
             clean_exit()
-        Workers.get_overall_length(fileNameUrls, baseDir)
+        self.work.get_overall_length(fileNameUrls, baseDir)
 
     def reg_download_info(self):
         '''
@@ -181,11 +185,11 @@ class InfoGather:
         fileNameToSave = raw_input('Enter the desired path and filename (Q to quit): ')
         if fileNameToSave.upper() == 'Q':
             clean_exit()
-        Workers.get_reg_download(urlToGetFile, fileNameToSave)
+        self.work.get_reg_download(urlToGetFile, fileNameToSave)
 
     def file_loop_check(self):
         '''Queries the user and directs them based on input.'''
-        specialDownload = query_response('Do you need to import a file with links?')
+        specialDownload = self.work.query_response('Do you need to import a file with links?')
         if specialDownload == 'n':
             self.reg_download_info()
         else:
@@ -198,7 +202,7 @@ class Notifier():
     '''
 
     def __init__(self):
-        self.note = Notify()
+        self.note = pynotify
         self.note.init('Piddle: ')
 
     def note_set_and_send(self, app, summary):
