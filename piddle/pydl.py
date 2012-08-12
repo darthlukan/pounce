@@ -20,6 +20,7 @@ import argparse
 import fileinput
 from progressbar import *
 from threading import Thread
+from gi.repository import Notify
 
 class Workers:
     '''
@@ -28,7 +29,7 @@ class Workers:
     order to function properly as a script.
     '''
 
-    def __init__(self):
+    #def __init__(self):
         #TODO: setup connections for GUI use as well as standalone.
 
     def query_response(self, question):
@@ -78,6 +79,7 @@ class Workers:
         for i in range(filelen):
             pbar.update(i+1)
         pbar.finish()
+        Notifier.note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
         more_to_do_query()
 
     # This looks redundant now, but just wait... :)
@@ -144,6 +146,7 @@ class Workers:
                 pbar.update(i+1)
         pbar.finish()
         print('All done!')
+        Notifier.note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
         more_to_do_query()
 
 
@@ -164,7 +167,7 @@ class InfoGather:
         baseDir = raw_input('Enter the directory path where you want the files saved (Q to quit): ')
         if baseDir.upper() == 'Q':
             clean_exit()
-        get_overall_length(fileNameUrls, baseDir)
+        Workers.get_overall_length(fileNameUrls, baseDir)
 
     def reg_download_info(self):
         '''
@@ -178,7 +181,7 @@ class InfoGather:
         fileNameToSave = raw_input('Enter the desired path and filename (Q to quit): ')
         if fileNameToSave.upper() == 'Q':
             clean_exit()
-        get_reg_download(urlToGetFile, fileNameToSave)
+        Workers.get_reg_download(urlToGetFile, fileNameToSave)
 
     def file_loop_check(self):
         '''Queries the user and directs them based on input.'''
@@ -188,13 +191,26 @@ class InfoGather:
         else:
             self.special_download_info()
 
+class Notifier():
+    '''
+    Contains methods that allow for notifying the user of process completion
+    using libnotify via pynotify.
+    '''
+
+    def __init__(self):
+        self.note = Notify()
+        self.note.init('Piddle: ')
+
+    def note_set_and_send(self, app, summary):
+        mynote = self.note.Notification(app, summary)
+        return mynote.show()
 
 def main():
     '''
     Greets the user, requests and parses arguments, and calls relevant
     functions and methods.
     '''
-    VERSION = '0.1dev'
+    VERSION = '0.2.dev'
 
     print("Hello! I am going to ensure that downloading your files, renaming them, ")
     print("and specifying where to save them, are as simple as possible. Let's get to it!")
