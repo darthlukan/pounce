@@ -10,7 +10,7 @@ setup(
         packages=['piddle', 'test',],
         install_requires = ['python>=2.7.2',
                             'pynotify',
-                            'progressbar>=2.3']
+                            'progressbar>=2.3'],
         license='GPLv2',
         long_description=open('README').read(),
 )
