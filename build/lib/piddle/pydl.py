@@ -139,7 +139,7 @@ class Workers:
         for line in fi:
             urlToGetFile = line[:-1]
             fileNameToSave = os.path.join(baseDir,urlToGetFile[urlToGetFile.rfind('/')+1:])
-            self.get_special_download(urlToGetFile, fileNameToSave)
+            get_special_download(urlToGetFile, fileNameToSave)
             cl += 1
             pbar.update(overallLength / nl * cl)
             for i in xrange(overallLength):

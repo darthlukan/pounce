@@ -7,7 +7,7 @@ setup(
         author_email='darthlukan@gmail.com',
         url='https://github.com/darthlukan/piddle.git',
         download_url='https://github.com/darthlukan/piddle.git',
-        packages=['piddle', 'test',],
+        packages=['piddle', 'test'],
         install_requires = ['python>=2.7.2',
                             'pynotify',
                             'progressbar>=2.3'],
