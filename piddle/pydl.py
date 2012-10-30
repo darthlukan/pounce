@@ -18,7 +18,7 @@ import os
 import urllib2
 import argparse
 import fileinput
-import pynotify
+import notify2
 from progressbar import *
 from threading import Thread
 
@@ -146,7 +146,7 @@ class Workers:
                 pbar.update(i+1)
         pbar.finish()
         print('All done!')
-        self.n.note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
+        note_set_and_send('Piddle: ', '%s download complete!' % (fileNameToSave))
         self.more_to_do_query()
 
 
@@ -195,19 +195,24 @@ class InfoGather:
         else:
             self.special_download_info()
 
-class Notifier():
-    '''
-    Contains methods that allow for notifying the user of process completion
-    using libnotify via pynotify.
-    '''
 
-    def __init__(self):
-        self.note = pynotify
-        self.note.init('Piddle: ')
+def note_set_and_send(app, summary):
+    '''
+    Creates a DBUS notification.
+    '''
+    notify2.init('Piddle: ')
+    return notify2.Notification(app, summary).show()
 
-    def note_set_and_send(self, app, summary):
-        mynote = self.note.Notification(app, summary)
-        return mynote.show()
+
+def clean_exit():
+    '''
+    If we call this, we are exiting based on user input and not because of an
+    error.
+    '''
+    # TODO: Expand into its own class with actual error/exception/exit handling.
+    print ("Thank you for using piddle.")
+    exit(0)
+
 
 def main():
     '''
@@ -245,15 +250,6 @@ def main():
                 print("this hasn't been configured yet.")
     else:
         ig.file_loop_check()
-
-def clean_exit():
-    '''
-    If we call this, we are exiting based on user input and not because of an
-    error.
-    '''
-    # TODO: Expand into its own class with actual error/exception/exit handling.
-    print ("Thank you for using piddle.")
-    exit(0)
 
 if __name__ == '__main__':
     main()
