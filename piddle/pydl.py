@@ -13,7 +13,6 @@
 # Note: This software should be considered experimental!            #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-
 import os
 import urllib2
 import argparse
@@ -28,9 +27,6 @@ class Workers:
     require use of the InfoGather class methods prior to being called in
     order to function properly as a script.
     '''
-
-    def __init__(self):
-        self.n = Notifier()
 
     def query_response(self, question):
         '''
@@ -75,11 +71,15 @@ class Workers:
                        Bar(marker='>', left='[',right=']'),
                        ' ', ETA(), ' ', FileTransferSpeed()]
         pbar = ProgressBar(widgets=widgets, maxval=filelen).start()
+
+        # This actually grabs the file.
         urllib2.urlopen(urlToGetFile, fileNameToSave)
+
+        # Place in own class and thread?
         for i in range(filelen):
             pbar.update(i+1)
         pbar.finish()
-        self.n.note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
+        note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
         self.more_to_do_query()
 
     # This looks redundant now, but just wait... :)
@@ -149,7 +149,6 @@ class Workers:
         note_set_and_send('Piddle: ', '%s download complete!' % (fileNameToSave))
         self.more_to_do_query()
 
-
 class InfoGather:
     '''
     Contains methods related to information gathering. Provides basic text
@@ -209,7 +208,7 @@ def clean_exit():
     If we call this, we are exiting based on user input and not because of an
     error.
     '''
-    # TODO: Expand into its own class with actual error/exception/exit handling.
+
     print ("Thank you for using piddle.")
     exit(0)
 
@@ -244,7 +243,6 @@ def main():
             tx = Thread(target=getOverallLength(file,args.outputDir[0]))
             print("thread start")
             tx.start()
-        #get_overall_length(file,args.outputDir[0])
     elif(args.cUrls):
             for url in args.cUrls:
                 print("this hasn't been configured yet.")
