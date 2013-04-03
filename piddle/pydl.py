@@ -12,6 +12,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 import os
+import shutil
 import argparse
 import fileinput
 import notify2
@@ -26,9 +27,6 @@ class Workers(object):
     require use of the InfoGather class methods prior to being called in
     order to function properly as a script.
     """
-
-    def __init__(self):
-        self.ig = InfoGather()
 
     def query_response(self, question):
         """
@@ -48,7 +46,7 @@ class Workers(object):
 
     def get_reg_download(self, urlToGetFile, fileNameToSave):
         """
-        Pulls the remote file with urllib2 and displays a progressbar.
+        Pulls the remote file with urllib and displays a progressbar.
             Takes two arguments:
 
             urlToGetFile: string url (with filename) of the file we want to
@@ -58,13 +56,12 @@ class Workers(object):
             up with.  If no path is given, the cwd is the target.  Breaks if no
             write permissions to cwd!
 
-            returns nothing, redirects to more_to_do_query() on completion.
+            returns/redirects to more_to_do_query() on completion.
         """
         filelen = 0
-        data = str(urlopen(urlToGetFile).info())
-        data = data[data.find("Content-Length"):]
-        data = data[16:data.find("\r")]
-        filelen += int(data)
+        data = urlopen(urlToGetFile)
+        size = int(data.headers["Content-Length"].strip())
+        filelen += int(size)
 
         # Sets up progressbar:
         widgets = ['Download Progress: ', Percentage(), ' ',
@@ -72,19 +69,21 @@ class Workers(object):
                    ' ', ETA(), ' ', FileTransferSpeed()]
         pbar = ProgressBar(widgets=widgets, maxval=filelen).start()
 
-        # This actually grabs the file.
-        urlopen(urlToGetFile, fileNameToSave)
+        # This actually grabs the file. Thanks to BlaXpirit via http://goo.gl/V910H
+        with urlopen(urlToGetFile) as response, open(fileNameToSave, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
 
         # Place in own class and thread?
         for i in range(filelen):
-            pbar.update(i+1)
+            pbar.update(i + 1)
         pbar.finish()
         note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
-        self.more_to_do_query()
+        return self.more_to_do_query()
 
     # This looks redundant now, but just wait... :)
     def get_special_download(self, urlToGetFile, baseDir):
-        urlopen(urlToGetFile, baseDir)
+        with urlopen(urlToGetFile) as response, open(baseDir, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
 
     def get_overall_length(self, fileNameUrls, baseDir):
         """
@@ -95,10 +94,9 @@ class Workers(object):
         fi = fileinput.input(fileNameUrls)
         overallLength = 0
         for line in fi:
-            data = str(urlopen(line).info())
-            data = data[data.find('Content-Length'):]
-            data = data[16:data.find('\r')]
-            overallLength += int(data)
+            data = urlopen(line)
+            size = int(data.headers['Content-Length'].strip())
+            overallLength += int(size)
         self.special_download_work(fileNameUrls, baseDir, overallLength)
 
     def more_to_do_query(self):
@@ -109,13 +107,13 @@ class Workers(object):
         moreDownloads = self.query_response('Do you want to download more files?(y/n): ')
         if moreDownloads == 'n':
             print('Until next time!')
-            clean_exit()
+            return clean_exit()
         elif moreDownloads == 'y':
             print('Re-routing...')
-            self.ig.file_loop_check()
+            return InfoGather().file_loop_check()
         else:
             print('Something bad happened, please report this error to the creator.')
-            clean_exit()
+            return clean_exit()
 
     # noinspection PyUnboundLocalVariable
     def special_download_work(self, fileNameUrls, baseDir, overallLength):
@@ -139,7 +137,7 @@ class Workers(object):
         pbar.start()
         for line in fi:
             urlToGetFile = line[:-1]
-            fileNameToSave = os.path.join(baseDir,urlToGetFile[urlToGetFile.rfind('/')+1:])
+            fileNameToSave = os.path.join(baseDir, urlToGetFile[urlToGetFile.rfind('/') + 1:])
             self.get_special_download(urlToGetFile, fileNameToSave)
             cl += 1
             pbar.update(overallLength / nl * cl)
@@ -168,11 +166,11 @@ class InfoGather(object):
         """
         fileNameUrls = input('Enter the filename (with path) that contains URLs (Q to quit): ')
         if fileNameUrls.upper() == 'Q':
-            clean_exit()
+            return clean_exit()
         baseDir = input('Enter the directory path where you want the files saved (Q to quit): ')
         if baseDir.upper() == 'Q':
-            clean_exit()
-        self.work.get_overall_length(fileNameUrls, baseDir)
+            return clean_exit()
+        return self.work.get_overall_length(fileNameUrls, baseDir)
 
     def reg_download_info(self):
         """
@@ -182,19 +180,19 @@ class InfoGather(object):
         """
         urlToGetFile = input('Please enter the download URL (Q to quit): ')
         if urlToGetFile.upper() == 'Q':
-            clean_exit()
+            return clean_exit()
         fileNameToSave = input('Enter the desired path and filename (Q to quit): ')
         if fileNameToSave.upper() == 'Q':
-            clean_exit()
-        self.work.get_reg_download(urlToGetFile, fileNameToSave)
+            return clean_exit()
+        return self.work.get_reg_download(urlToGetFile, fileNameToSave)
 
     def file_loop_check(self):
         """Queries the user and directs them based on input."""
         specialDownload = self.work.query_response('Do you need to import a file with links?')
         if specialDownload == 'n':
-            self.reg_download_info()
+            return self.reg_download_info()
         else:
-            self.special_download_info()
+            return self.special_download_info()
 
 
 def note_set_and_send(app, summary):
@@ -222,9 +220,6 @@ def main():
     """
     VERSION = '0.2.dev'
 
-    print("Hello! I am going to ensure that downloading your files, renaming them, ")
-    print("and specifying where to save them, are as simple as possible. Let's get to it!")
-
     parser = argparse.ArgumentParser(description='pydl argument information.')
     parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles',
                         help='Given the full path,load each URL in the file. Also takes multiple file arguments.')
@@ -235,7 +230,7 @@ def main():
     parser.add_argument('-o', '--output', nargs=1,  action='store', dest='outputDir',
                         help='Move all downloaded files to this directory.')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s-' + VERSION,
-                        help ='Current version of pydl.py')
+                        help='Current version of pydl.py')
 
     ig = InfoGather()
 
