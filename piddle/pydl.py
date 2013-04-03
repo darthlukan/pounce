@@ -21,6 +21,7 @@ import notify2
 from progressbar import *
 from threading import Thread
 
+
 class Workers:
     '''
     Provides methods that do all of the heavy lifting.  Methods contained
@@ -43,8 +44,6 @@ class Workers:
         else:
             print('Invalid response recorded, please try again.\n')
             self.query_response(question)
-
-
 
     def get_reg_download(self, urlToGetFile, fileNameToSave):
         '''
@@ -148,6 +147,7 @@ class Workers:
         print('All done!')
         note_set_and_send('Piddle: ', '%s download complete!' % (fileNameToSave))
         self.more_to_do_query()
+
 
 class InfoGather:
     '''
