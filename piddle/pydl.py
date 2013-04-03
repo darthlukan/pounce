@@ -12,11 +12,11 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 import os
-import urllib3
 import argparse
 import fileinput
 import notify2
 from progressbar import *
+from urllib.request import urlopen
 from threading import Thread
 
 
@@ -61,7 +61,7 @@ class Workers(object):
             returns nothing, redirects to more_to_do_query() on completion.
         """
         filelen = 0
-        data = str(urllib3.urlopen(urlToGetFile).info())
+        data = str(urlopen(urlToGetFile).info())
         data = data[data.find("Content-Length"):]
         data = data[16:data.find("\r")]
         filelen += int(data)
@@ -73,7 +73,7 @@ class Workers(object):
         pbar = ProgressBar(widgets=widgets, maxval=filelen).start()
 
         # This actually grabs the file.
-        urllib2.urlopen(urlToGetFile, fileNameToSave)
+        urlopen(urlToGetFile, fileNameToSave)
 
         # Place in own class and thread?
         for i in range(filelen):
@@ -84,7 +84,7 @@ class Workers(object):
 
     # This looks redundant now, but just wait... :)
     def get_special_download(self, urlToGetFile, baseDir):
-        urllib2.urlopen(urlToGetFile, baseDir)
+        urlopen(urlToGetFile, baseDir)
 
     def get_overall_length(self, fileNameUrls, baseDir):
         """
@@ -95,7 +95,7 @@ class Workers(object):
         fi = fileinput.input(fileNameUrls)
         overallLength = 0
         for line in fi:
-            data = str(urllib2.urlopen(line).info())
+            data = str(urlopen(line).info())
             data = data[data.find('Content-Length'):]
             data = data[16:data.find('\r')]
             overallLength += int(data)
