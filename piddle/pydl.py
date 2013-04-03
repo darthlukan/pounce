@@ -31,18 +31,18 @@ class Workers(object):
     def query_response(self, question):
         """
         Holds command line responses and passes them to the appropriate
-        functions.  If response is not \"q\", returns response as string for
+        functions.  If response is not 'q', returns response as string for
         processing.
         """
         prompt = " [y/n/q] "
         response = input(question + prompt).lower()
         if response == 'q':
-            clean_exit()
+            return clean_exit()
         elif response == 'y' or response == 'n':
             return response
         else:
             print('Invalid response recorded, please try again.\n')
-            self.query_response(question)
+            return self.query_response(question)
 
     def get_reg_download(self, urlToGetFile, fileNameToSave):
         """
@@ -83,7 +83,7 @@ class Workers(object):
     # This looks redundant now, but just wait... :)
     def get_special_download(self, urlToGetFile, baseDir):
         with urlopen(urlToGetFile) as response, open(baseDir, 'wb') as out_file:
-            shutil.copyfileobj(response, out_file)
+            return shutil.copyfileobj(response, out_file)
 
     def get_overall_length(self, fileNameUrls, baseDir):
         """
@@ -97,7 +97,7 @@ class Workers(object):
             data = urlopen(line)
             size = int(data.headers['Content-Length'].strip())
             overallLength += int(size)
-        self.special_download_work(fileNameUrls, baseDir, overallLength)
+        return self.special_download_work(fileNameUrls, baseDir, overallLength)
 
     def more_to_do_query(self):
         """
@@ -191,6 +191,8 @@ class InfoGather(object):
         specialDownload = self.work.query_response('Do you need to import a file with links?')
         if specialDownload == 'n':
             return self.reg_download_info()
+        elif specialDownload == 'q':
+            return clean_exit()
         else:
             return self.special_download_info()
 
