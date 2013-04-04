@@ -16,9 +16,9 @@ import shutil
 import argparse
 import fileinput
 import notify2
+import multiprocessing
 from progressbar import *
 from urllib.request import urlopen
-from threading import Thread
 
 
 class Workers(object):
@@ -59,7 +59,7 @@ class Workers(object):
             returns/redirects to more_to_do_query() on completion.
         """
         filelen = 0
-        data = urlopen(urlToGetFile)
+        data = urlopen(urlToGetFile, timeout=60)
         size = int(data.headers["Content-Length"].strip())
         filelen += int(size)
 
@@ -70,7 +70,7 @@ class Workers(object):
         pbar = ProgressBar(widgets=widgets, maxval=filelen).start()
 
         # This actually grabs the file. Thanks to BlaXpirit via http://goo.gl/V910H
-        with urlopen(urlToGetFile) as response, open(fileNameToSave, 'wb') as out_file:
+        with urlopen(urlToGetFile, timeout=60) as response, open(fileNameToSave, 'wb') as out_file:
             shutil.copyfileobj(response, out_file)
 
         # Place in own class and thread?
@@ -82,7 +82,7 @@ class Workers(object):
 
     # This looks redundant now, but just wait... :)
     def get_special_download(self, urlToGetFile, baseDir):
-        with urlopen(urlToGetFile) as response, open(baseDir, 'wb') as out_file:
+        with urlopen(urlToGetFile, timeout=60) as response, open(baseDir, 'wb') as out_file:
             return shutil.copyfileobj(response, out_file)
 
     def get_overall_length(self, fileNameUrls, baseDir):
@@ -220,7 +220,7 @@ def main():
     Greets the user, requests and parses arguments, and calls relevant
     functions and methods.
     """
-    VERSION = '0.2.dev'
+    VERSION = '0.3.dev'
 
     parser = argparse.ArgumentParser(description='pydl argument information.')
     parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles',
@@ -239,12 +239,14 @@ def main():
     args = parser.parse_args()
     if args.cFiles:
         for file in args.cFiles:
-            tx = Thread(target=Workers().get_overall_length(fileNameUrls=file, baseDir=args.outputDir[0]))
-            print("thread start")
-            tx.start()
+            p = multiprocessing.Process(
+                target=Workers().get_overall_length(fileNameUrls=file, baseDir=args.outputDir[0]))
+            p.start()
     elif args.cUrls:
-            for url in args.cUrls:
-                print("this hasn't been configured yet.")
+        for url in args.cUrls:
+            p = multiprocessing.Process(
+                target=Workers().get_reg_download(urlToGetFile=url[0], fileNameToSave=args.outputDir[0]))
+            p.start()
     else:
         ig.file_loop_check()
 

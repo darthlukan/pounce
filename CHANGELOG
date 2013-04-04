@@ -1,5 +1,15 @@
 Changelog:
 
+Piddle-v0.3.dev:
+    New Version
+    Now requires:
+        Python>=3.2
+        notify2
+        progressbar
+    Refactored Notification class down to notification function.
+    Replaced threading module with multiprocessing.
+        Multiprocessing only works for command line arguments, not for interface downloads.
+
 Piddle-v0.2.dev:
 	New version
 	Added requisite modules to setup.py:

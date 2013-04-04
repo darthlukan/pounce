@@ -1,3 +1,2 @@
-https://www.archlinux.org/iso/2012.08.04/archlinux-2012.08.04-dual.iso.torrent
-https://releng.archlinux.org/isos/2012.08.07_04-00-01/
+http://www.brianctomlinson.com/index.html
 http://www.viemu.com/vi-vim-cheat-sheet.gif
