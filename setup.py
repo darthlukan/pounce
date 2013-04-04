@@ -1,8 +1,8 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='Piddle',
-    version='0.2.dev',
+    version='0.3.dev',
     author='Brian Tomlinson',
     author_email='darthlukan@gmail.com',
     url='https://github.com/darthlukan/piddle.git',
