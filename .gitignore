@@ -2,3 +2,9 @@
 .idea/*
 .idea/*.*
 .idea/.*
+.dist
+.dist/*
+.dist/*.*
+.dist/.*
+Piddle.egg-info
+Piddle.egg-info/*
