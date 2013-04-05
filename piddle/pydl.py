@@ -100,16 +100,6 @@ class Workers(object):
             overallLength += int(size)
         return self.special_download_work(fileNameUrls, baseDir, overallLength)
 
-    def get_csv_overall_length(self, csvFile, baseDir):
-        overallLength = 0
-        with open(csvFile, newline='') as csvfile:
-            spreadsheet = csv.reader(csvfile, delimiter=',', quotechar='|')
-            for row in spreadsheet:
-                data = urlopen(row[0])
-                size = int(data.headers['Content-Length'].strip())
-                overallLength += int(size)
-        return self.csv_download_work(csvFile, baseDir, overallLength)
-
     def more_to_do_query(self):
         """
         Called by other functions in order to provide an interface for users to
@@ -125,32 +115,6 @@ class Workers(object):
         else:
             print('Something bad happened, please report this error to the creator.')
             return clean_exit()
-
-    def csv_download_work(self, csvFile, baseDir, overallLength):
-        if not baseDir.endswith('/') and baseDir != '':
-            baseDir += '/'
-        with open(csvFile, newline='') as csvfile:
-            spreadsheet = csv.reader(csvfile, delimiter=',', quotechar='|')
-            nl = 0
-            for row in spreadsheet:
-                nl += 1
-            cl = 0
-            widgets = ['Overall Progress: ', Percentage(), ' ',
-                       Bar(marker='>', left='[', right=']'),
-                       ' ', ETA(), ' ', FileTransferSpeed()]
-            pbar = ProgressBar(widgets=widgets, maxval=overallLength)
-            pbar.start()
-            for row in spreadsheet:
-                urlToGet = row[0]
-                fileNameToSave = os.path.join(baseDir, urlToGet[urlToGet.rfind('/') + 1:])
-                self.get_special_download(urlToGet, fileNameToSave)
-                cl += 1
-                pbar.update(overallLength / nl * cl)
-                for i in range(overallLength):
-                    pbar.update(i + 1)
-            pbar.finish()
-            note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
-            return self.more_to_do_query()
 
     def special_download_work(self, fileNameUrls, baseDir, overallLength):
         """
@@ -179,9 +143,9 @@ class Workers(object):
             pbar.update(overallLength / nl * cl)
             for i in range(overallLength):
                 pbar.update(i + 1)
+            note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
         pbar.finish()
         print('All done!')
-        note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
         return self.more_to_do_query()
 
 
@@ -208,15 +172,6 @@ class InfoGather(object):
             return clean_exit()
         return self.work.get_overall_length(fileNameUrls, baseDir)
 
-    def csv_download_info(self):
-        csvFile = input('Enter the CSV filename (with path) that contains the URLS (Q to quit): ')
-        if csvFile.upper() == 'Q':
-            return clean_exit()
-        baseDir = input('Enter the directory path where you want the files saved (Q to quit): ')
-        if baseDir.upper() == 'Q':
-            return clean_exit()
-        return self.work.get_csv_overall_length(csvFile, baseDir)
-
     def reg_download_info(self):
         """
         Gathers information based on regular download requests. Takes a url
@@ -238,15 +193,8 @@ class InfoGather(object):
             return self.reg_download_info()
         elif specialDownload == 'q':
             return clean_exit()
-        elif specialDownload == 'y':
-            response = self.work.query_response('Are you importing a CSV file?')
-            if response == 'n':
-                return self.reg_download_info()
-            elif response == 'q':
-                return clean_exit()
-            else:
-                return self.csv_download_info()
-        return self.special_download_info()
+        else:
+            return self.special_download_info()
 
 
 def note_set_and_send(app, summary):
@@ -277,8 +225,6 @@ def main():
     parser = argparse.ArgumentParser(description='pydl argument information.')
     parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles',
                         help='Given the full path,load each URL in the file. Also takes multiple file arguments.')
-    parser.add_argument('-c', '--csv', nargs='*', action='append', dest='csvFiles',
-                        help='Same as --file but specific to .csv files.')
     parser.add_argument('-d', '--dir',   nargs=1, action='store', default=".", dest='outputDir',
                         help='In a given directory check all files for URLs and download those.')
     parser.add_argument('-u', '--url', nargs='*', action='append', dest='cUrls',
@@ -295,11 +241,6 @@ def main():
         for file in args.cFiles:
             p = multiprocessing.Process(
                 target=Workers().get_overall_length(fileNameUrls=file, baseDir=args.outputDir[0]))
-            p.start()
-    elif args.csvFiles:
-        for file in args.csvFiles:
-            p = multiprocessing.Process(
-                target=Workers().get_csv_overall_length(csvFile=file, baseDir=args.outputDir[0]))
             p.start()
     elif args.cUrls:
         for url in args.cUrls:
