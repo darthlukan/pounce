@@ -1,18 +1,16 @@
 #!/usr/bin/env python
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Filename: pydl.py                                                 #
+# Filename: pounce.py                                               #
 # Authors: Brian Tomlinson <darthlukan@gmail.com>                   #
-# URL: git@github.com:darthlukan/piddle.git                         #
-# Description: A simple CLI download manager written in Python.     #
+# URL: git@github.com:darthlukan/pounce.git                         #
+# Description: A simple CLI downloader written in Python.           #
 # Warning: If you received this program from any source other than  #
 # the above noted URL, please check the source code! You may have   #
 # downloaded a file with malicious code injected.                   #
 # License: GPLv2, Please see the included LICENSE file.             #
-# Note: This software should be considered experimental!            #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 import os
-import csv
 import shutil
 import argparse
 import fileinput
@@ -29,6 +27,27 @@ class Workers(object):
     order to function properly as a script.
     """
 
+    def __init__(self):
+        self.widgets = ['Download Progress: ', Percentage(), ' ',
+                        Bar(marker='>', left='[', right=']'),
+                        ' ', ETA(), ' ', FileTransferSpeed()]
+
+    def more_to_do_query(self):
+        """
+        Called by other functions in order to provide an interface for users to
+        continue to download files or to exit.
+        """
+        moreDownloads = self.query_response('Do you want to download more files?(y/n): ')
+        if moreDownloads == 'n':
+            print('Until next time!')
+            return clean_exit()
+        elif moreDownloads == 'y':
+            print('Re-routing...')
+            return InfoGather().file_loop_check()
+        else:
+            print('Something bad happened, please report this error to the creator.')
+            return clean_exit()
+
     def query_response(self, question):
         """
         Holds command line responses and passes them to the appropriate
@@ -44,6 +63,20 @@ class Workers(object):
         else:
             print('Invalid response recorded, please try again.\n')
             return self.query_response(question)
+
+    def get_overall_length(self, fileNameUrls, baseDir):
+        """
+        Prepares the transaction for special downloads.  This is specific to urls
+        contained in text files (for now, csv later).  Iterates over the provided
+        file argument and sets each line to be downloaded in turn.
+        """
+        fi = fileinput.input(fileNameUrls)
+        overallLength = 0
+        for line in fi:
+            data = urlopen(line)
+            size = int(data.headers['Content-Length'].strip())
+            overallLength += int(size)
+        return self.special_download_work(fileNameUrls, baseDir, overallLength)
 
     def get_reg_download(self, urlToGetFile, fileNameToSave):
         """
@@ -65,11 +98,10 @@ class Workers(object):
         filelen += int(size)
 
         # Sets up progressbar:
-        widgets = ['Download Progress: ', Percentage(), ' ',
-                   Bar(marker='>', left='[', right=']'),
-                   ' ', ETA(), ' ', FileTransferSpeed()]
+        widgets = self.widgets
         pbar = ProgressBar(widgets=widgets, maxval=filelen).start()
 
+        fileNameToSave = os.path.join(fileNameToSave, urlToGetFile[urlToGetFile.rfind('/') + 1:])
         # This actually grabs the file. Thanks to BlaXpirit via http://goo.gl/V910H
         with urlopen(urlToGetFile, timeout=60) as response, open(fileNameToSave, 'wb') as out_file:
             shutil.copyfileobj(response, out_file)
@@ -78,43 +110,8 @@ class Workers(object):
         for i in range(filelen):
             pbar.update(i + 1)
         pbar.finish()
-        note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
+        note_set_and_send('Pounce: ', '%s download complete!' % fileNameToSave)
         return self.more_to_do_query()
-
-    # This looks redundant now, but just wait... :)
-    def get_special_download(self, urlToGetFile, baseDir):
-        with urlopen(urlToGetFile, timeout=60) as response, open(baseDir, 'wb') as out_file:
-            return shutil.copyfileobj(response, out_file)
-
-    def get_overall_length(self, fileNameUrls, baseDir):
-        """
-        Prepares the transaction for special downloads.  This is specific to urls
-        contained in text files (for now, csv later).  Iterates over the provided
-        file argument and sets each line to be downloaded in turn.
-        """
-        fi = fileinput.input(fileNameUrls)
-        overallLength = 0
-        for line in fi:
-            data = urlopen(line)
-            size = int(data.headers['Content-Length'].strip())
-            overallLength += int(size)
-        return self.special_download_work(fileNameUrls, baseDir, overallLength)
-
-    def more_to_do_query(self):
-        """
-        Called by other functions in order to provide an interface for users to
-        continue to download files or to exit.
-        """
-        moreDownloads = self.query_response('Do you want to download more files?(y/n): ')
-        if moreDownloads == 'n':
-            print('Until next time!')
-            return clean_exit()
-        elif moreDownloads == 'y':
-            print('Re-routing...')
-            return InfoGather().file_loop_check()
-        else:
-            print('Something bad happened, please report this error to the creator.')
-            return clean_exit()
 
     def special_download_work(self, fileNameUrls, baseDir, overallLength):
         """
@@ -130,9 +127,7 @@ class Workers(object):
             nl += 1
         fi = fileinput.input(fileNameUrls)
         cl = 0
-        widgets = ['Overall Progress: ', Percentage(), ' ',
-                   Bar(marker='>', left='[', right=']'),
-                   ' ', ETA(), ' ', FileTransferSpeed()]
+        widgets = self.widgets
         pbar = ProgressBar(widgets=widgets, maxval=overallLength)
         pbar.start()
         for line in fi:
@@ -143,10 +138,20 @@ class Workers(object):
             pbar.update(overallLength / nl * cl)
             for i in range(overallLength):
                 pbar.update(i + 1)
-            note_set_and_send('Piddle: ', '%s download complete!' % fileNameToSave)
+            note_set_and_send('Pounce: ', '%s download complete!' % fileNameToSave)
         pbar.finish()
         print('All done!')
         return self.more_to_do_query()
+
+    def get_special_download(self, urlToGetFile, baseDir):
+        """
+        Takes the individual links from the file input in special_download_work(),
+        downloads the object that the URL points to, and copies it to the output directory/file.
+
+        returns the status of shutil.copyfileobj()
+        """
+        with urlopen(urlToGetFile, timeout=60) as response, open(baseDir, 'wb') as out_file:
+            return shutil.copyfileobj(response, out_file)
 
 
 class InfoGather(object):
@@ -201,7 +206,7 @@ def note_set_and_send(app, summary):
     """
     Creates a DBUS notification.
     """
-    notify2.init('Piddle: ')
+    notify2.init('Pounce: ')
     return notify2.Notification(app, summary).show()
 
 
@@ -211,28 +216,25 @@ def clean_exit():
     error.
     """
 
-    print("Thank you for using piddle.")
+    print("Thank you for using Pounce.")
     exit(0)
 
 
 def main():
     """
-    Greets the user, requests and parses arguments, and calls relevant
-    functions and methods.
+    Parses arguments and calls relevant functions and methods.
     """
-    VERSION = '0.3.dev'
+    VERSION = '1.0'
 
-    parser = argparse.ArgumentParser(description='pydl argument information.')
+    parser = argparse.ArgumentParser(description='pounce argument information.')
     parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles',
-                        help='Given the full path,load each URL in the file. Also takes multiple file arguments.')
-    parser.add_argument('-d', '--dir',   nargs=1, action='store', default=".", dest='outputDir',
-                        help='In a given directory check all files for URLs and download those.')
+                        help='Given the full path,load each URL in the file.')
     parser.add_argument('-u', '--url', nargs='*', action='append', dest='cUrls',
-                        help='This will grab 1-N urls. Use space as the delimitter.')
+                        help='This will grab 1 url.')
     parser.add_argument('-o', '--output', nargs=1,  action='store', dest='outputDir',
                         help='Move all downloaded files to this directory.')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s-' + VERSION,
-                        help='Current version of pydl.py')
+                        help='Current version of pounce.py')
 
     ig = InfoGather()
 
