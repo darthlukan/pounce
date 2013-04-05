@@ -37,7 +37,7 @@ class Workers(object):
         Called by other functions in order to provide an interface for users to
         continue to download files or to exit.
         """
-        moreDownloads = self.query_response('Do you want to download more files?(y/n): ')
+        moreDownloads = self.query_response('Do you want to download more files?: ')
         if moreDownloads == 'n':
             print('Until next time!')
             return clean_exit()

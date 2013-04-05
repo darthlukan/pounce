@@ -1,5 +1,15 @@
 Changelog:
 
+Pounce-v1.0:
+    Renamed program.
+    Version worthy of 1.0
+    Removed unneeded command line arguments.
+    Added/clarified docstrings.
+    Works with .csv files for those that care.
+    Bug fixes:
+        Fixed an issue where only the last file downloaded via file input would display in DBUS notifications.
+        All files are now correctly displayed in notifications upon completion of their download.
+
 Piddle-v0.3.dev:
     New Version
     Now requires:

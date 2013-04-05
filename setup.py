@@ -1,13 +1,14 @@
 from setuptools import setup
 
 setup(
-    name='Piddle',
-    version='0.3.dev',
+    name='Pounce',
+    version='1.0',
     author='Brian Tomlinson',
     author_email='darthlukan@gmail.com',
-    url='https://github.com/darthlukan/piddle.git',
-    download_url='https://github.com/darthlukan/piddle.git',
-    packages=['piddle', 'test'],
+    url='https://github.com/darthlukan/pounce.git',
+    download_url='https://github.com/darthlukan/pounce.git',
+    packages=['pounce', 'test'],
+    scripts = ['scripts/pounce'],
     install_requires=['python>=3.2',
                       'progressbar>=2.3',
                       'notify2'],
