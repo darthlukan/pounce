@@ -32,38 +32,6 @@ class Workers(object):
                         Bar(marker='>', left='[', right=']'),
                         ' ', ETA(), ' ', FileTransferSpeed()]
 
-    def more_to_do_query(self):
-        """
-        Called by other functions in order to provide an interface for users to
-        continue to download files or to exit.
-        """
-        moreDownloads = self.query_response('Do you want to download more files?: ')
-        if moreDownloads == 'n':
-            print('Until next time!')
-            return clean_exit()
-        elif moreDownloads == 'y':
-            print('Re-routing...')
-            return InfoGather().file_loop_check()
-        else:
-            print('Something bad happened, please report this error to the creator.')
-            return clean_exit()
-
-    def query_response(self, question):
-        """
-        Holds command line responses and passes them to the appropriate
-        functions.  If response is not 'q', returns response as string for
-        processing.
-        """
-        prompt = " [y/n/q] "
-        response = input(question + prompt).lower()
-        if response == 'q':
-            return clean_exit()
-        elif response == 'y' or response == 'n':
-            return response
-        else:
-            print('Invalid response recorded, please try again.\n')
-            return self.query_response(question)
-
     def get_overall_length(self, fileNameUrls, baseDir):
         """
         Prepares the transaction for special downloads.  This is specific to urls
@@ -102,13 +70,15 @@ class Workers(object):
 
         fileNameToSave = os.path.join(fileNameToSave, urlToGetFile[urlToGetFile.rfind('/') + 1:])
 
-        multiprocessing.Process(target=self.download(urlToGetFile, fileNameToSave)).start()
+        proc = multiprocessing.Process(target=self.download(urlToGetFile, fileNameToSave))
+        proc.start()
+        proc.join()
 
         for i in range(filelen):
             pbar.update(i + 1)
         pbar.finish()
         note_set_and_send('Pounce: ', '%s download complete!' % fileNameToSave)
-        return self.more_to_do_query()
+        return clean_exit()
 
     def special_download_work(self, fileNameUrls, baseDir, overallLength):
         """
@@ -130,14 +100,17 @@ class Workers(object):
         for line in fi:
             urlToGetFile = line[:-1]
             fileNameToSave = os.path.join(baseDir, urlToGetFile[urlToGetFile.rfind('/') + 1:])
-            multiprocessing.Process(target=self.download(urlToGetFile, fileNameToSave)).start()
+            proc = multiprocessing.Process(target=self.download(urlToGetFile, fileNameToSave))
+            proc.start()
+            proc.join()
             cl += 1
             pbar.update(overallLength / nl * cl)
             for i in range(overallLength):
                 pbar.update(i + 1)
             note_set_and_send('Pounce: ', '%s download complete!' % fileNameToSave)
         pbar.finish()
-        return self.more_to_do_query()
+        note_set_and_send('Pounce: ', 'All jobs completed!')
+        return clean_exit()
 
     def download(self, urlToGetFile, baseDir):
         """
@@ -149,55 +122,6 @@ class Workers(object):
         # Thanks to BlaXpirit via http://goo.gl/V910H
         with urlopen(urlToGetFile, timeout=60) as response, open(baseDir, 'wb') as out_file:
             return shutil.copyfileobj(response, out_file)
-
-
-class InfoGather(object):
-    """
-    Contains methods related to information gathering. Provides basic text
-    interface for terminal users. Not initially invoked if downloads are initiated
-    on the CLI, will be called when CLI jobs are done to provide options.
-    """
-
-    def __init__(self):
-        self.work = Workers()
-
-    def special_download_info(self):
-        """
-        Gathers information based on special download requests.  Accepts a
-        file as input and passes it to the relevant function.  Provides ability
-        for users to exit cleanly based on input.
-        """
-        fileNameUrls = input('Enter the filename (with path) that contains URLs (Q to quit): ')
-        if fileNameUrls.upper() == 'Q':
-            return clean_exit()
-        baseDir = input('Enter the directory path where you want the files saved (Q to quit): ')
-        if baseDir.upper() == 'Q':
-            return clean_exit()
-        return self.work.get_overall_length(fileNameUrls, baseDir)
-
-    def reg_download_info(self):
-        """
-        Gathers information based on regular download requests. Takes a url
-        and passes it to the relevant function.  Provides ability for users
-        to exit cleanly based on input.
-        """
-        urlToGetFile = input('Please enter the download URL (Q to quit): ')
-        if urlToGetFile.upper() == 'Q':
-            return clean_exit()
-        fileNameToSave = input('Enter the desired path and filename (Q to quit): ')
-        if fileNameToSave.upper() == 'Q':
-            return clean_exit()
-        return self.work.get_reg_download(urlToGetFile, fileNameToSave)
-
-    def file_loop_check(self):
-        """Queries the user and directs them based on input."""
-        specialDownload = self.work.query_response('Do you need to import a file with links?')
-        if specialDownload == 'n':
-            return self.reg_download_info()
-        elif specialDownload == 'q':
-            return clean_exit()
-        else:
-            return self.special_download_info()
 
 
 def note_set_and_send(app, summary):
@@ -225,30 +149,30 @@ def main():
     VERSION = '1.0'
 
     parser = argparse.ArgumentParser(description='pounce argument information.')
-    parser.add_argument('-f', '--file', nargs='*',  action='append', dest='cFiles',
+    parser.add_argument('-f', '--file', nargs='*',  action='store', dest='cFile',
                         help='Given the full path,load each URL in the file.')
-    parser.add_argument('-u', '--url', nargs='*', action='append', dest='cUrls',
+    parser.add_argument('-u', '--url', nargs='*', action='store', dest='cUrl',
                         help='This will grab 1 url.')
     parser.add_argument('-o', '--output', nargs=1,  action='store', dest='outputDir',
                         help='Move all downloaded files to this directory.')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s-' + VERSION,
                         help='Current version of pounce.py')
 
-    ig = InfoGather()
-
     args = parser.parse_args()
-    if args.cFiles:
-        for file in args.cFiles:
+    if args.cFile:
+        for file in args.cFile:
             p = multiprocessing.Process(
                 target=Workers().get_overall_length(fileNameUrls=file, baseDir=args.outputDir[0]))
             p.start()
-    elif args.cUrls:
-        for url in args.cUrls:
+            p.join()
+    elif args.cUrl:
+        for url in args.cUrl:
             p = multiprocessing.Process(
-                target=Workers().get_reg_download(urlToGetFile=url[0], fileNameToSave=args.outputDir[0]))
+                target=Workers().get_reg_download(urlToGetFile=url, fileNameToSave=args.outputDir[0]))
             p.start()
+            p.join()
     else:
-        ig.file_loop_check()
+        clean_exit()
 
 if __name__ == '__main__':
     main()
