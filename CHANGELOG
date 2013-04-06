@@ -1,5 +1,13 @@
 Changelog:
 
+Pounce-v1.1:
+    Removed InfoGather class as it did not offer a seamless CLI experience.
+        This means that all interaction is done via command line flags.
+    Cleaned up command line arguments so that they reflect what Pounce can actually do and not confuse users.
+    Using multiprocessing in more areas, where they make sense.
+        This change offers the most notable improvements when downloading large files.
+
+
 Pounce-v1.0:
     Renamed program.
     Version worthy of 1.0

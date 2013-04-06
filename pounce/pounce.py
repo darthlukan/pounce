@@ -146,12 +146,12 @@ def main():
     """
     Parses arguments and calls relevant functions and methods.
     """
-    VERSION = '1.0'
+    VERSION = '1.1'
 
     parser = argparse.ArgumentParser(description='pounce argument information.')
-    parser.add_argument('-f', '--file', nargs='*',  action='store', dest='cFile',
+    parser.add_argument('-f', '--file', nargs=1,  action='store', dest='file',
                         help='Given the full path,load each URL in the file.')
-    parser.add_argument('-u', '--url', nargs='*', action='store', dest='cUrl',
+    parser.add_argument('-u', '--url', nargs=1, action='store', dest='url',
                         help='This will grab 1 url.')
     parser.add_argument('-o', '--output', nargs=1,  action='store', dest='outputDir',
                         help='Move all downloaded files to this directory.')
@@ -159,19 +159,20 @@ def main():
                         help='Current version of pounce.py')
 
     args = parser.parse_args()
-    if args.cFile:
-        for file in args.cFile:
+    if args.file:
+        for file in args.file:
             p = multiprocessing.Process(
                 target=Workers().get_overall_length(fileNameUrls=file, baseDir=args.outputDir[0]))
             p.start()
             p.join()
-    elif args.cUrl:
-        for url in args.cUrl:
+    elif args.url:
+        for url in args.url:
             p = multiprocessing.Process(
                 target=Workers().get_reg_download(urlToGetFile=url, fileNameToSave=args.outputDir[0]))
             p.start()
             p.join()
     else:
+        parser.print_help()
         clean_exit()
 
 if __name__ == '__main__':

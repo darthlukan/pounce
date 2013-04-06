@@ -1,21 +1,25 @@
 Readme:
 ====================================
 
-Pounce is a simple downloader written in Python.  It can be run from the command line where it presents
-a menu to the user, guiding them through a simple process in order to get online resources, or it can be
-provided with command line arguments, foregoing the walkthrough.
+Pounce is a simple downloader written in Python.  It was designed specifically to be run from the Linux command line
+and provides DBUS notifications using notify2 when downloads are completed.
 
-Example usage (CLI with args):
+Example usage:
 ------------------------------
 
 Simple single file downloading:
 
-./pounce.py -u http://www.pathtoresource.com/resource.file -o /path/to/save/in/
+$ pounce -u http://www.pathtoresource.com/resource.file -o /path/to/save/in/
 
 Download links contained in a text file:
 
-./pounce.py -f /file/containing/links.txt -o /save/files/here/
+$ pounce -f /file/containing/links.txt -o /save/files/here/
 
+Extras:
+------------------------------
+
+A test folder is provided with a text file and csv file which you can use to ensure that file input
+functionality works on your system.
 
 Developer contact info:
 -----------------------
