@@ -97,16 +97,13 @@ class Workers(object):
         size = int(data.headers["Content-Length"].strip())
         filelen += int(size)
 
-        # Sets up progressbar:
         widgets = self.widgets
         pbar = ProgressBar(widgets=widgets, maxval=filelen).start()
 
         fileNameToSave = os.path.join(fileNameToSave, urlToGetFile[urlToGetFile.rfind('/') + 1:])
-        # This actually grabs the file. Thanks to BlaXpirit via http://goo.gl/V910H
-        with urlopen(urlToGetFile, timeout=60) as response, open(fileNameToSave, 'wb') as out_file:
-            shutil.copyfileobj(response, out_file)
 
-        # Place in own class and thread?
+        multiprocessing.Process(target=self.download(urlToGetFile, fileNameToSave)).start()
+
         for i in range(filelen):
             pbar.update(i + 1)
         pbar.finish()
@@ -133,23 +130,23 @@ class Workers(object):
         for line in fi:
             urlToGetFile = line[:-1]
             fileNameToSave = os.path.join(baseDir, urlToGetFile[urlToGetFile.rfind('/') + 1:])
-            self.get_special_download(urlToGetFile, fileNameToSave)
+            multiprocessing.Process(target=self.download(urlToGetFile, fileNameToSave)).start()
             cl += 1
             pbar.update(overallLength / nl * cl)
             for i in range(overallLength):
                 pbar.update(i + 1)
             note_set_and_send('Pounce: ', '%s download complete!' % fileNameToSave)
         pbar.finish()
-        print('All done!')
         return self.more_to_do_query()
 
-    def get_special_download(self, urlToGetFile, baseDir):
+    def download(self, urlToGetFile, baseDir):
         """
-        Takes the individual links from the file input in special_download_work(),
+        Takes the individual links from the url/file input,
         downloads the object that the URL points to, and copies it to the output directory/file.
 
         returns the status of shutil.copyfileobj()
         """
+        # Thanks to BlaXpirit via http://goo.gl/V910H
         with urlopen(urlToGetFile, timeout=60) as response, open(baseDir, 'wb') as out_file:
             return shutil.copyfileobj(response, out_file)
 
@@ -157,7 +154,8 @@ class Workers(object):
 class InfoGather(object):
     """
     Contains methods related to information gathering. Provides basic text
-    interface for terminal users.
+    interface for terminal users. Not initially invoked if downloads are initiated
+    on the CLI, will be called when CLI jobs are done to provide options.
     """
 
     def __init__(self):
