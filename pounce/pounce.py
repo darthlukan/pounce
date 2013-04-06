@@ -137,7 +137,6 @@ def clean_exit():
     If we call this, we are exiting based on user input and not because of an
     error.
     """
-
     print("Thank you for using Pounce.")
     exit(0)
 
